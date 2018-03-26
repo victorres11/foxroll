@@ -1,7 +1,6 @@
 import csv
 
 def process_csv(csvfile):
-    print "UPDATED"
     with open(csvfile.filename, 'rb') as opened_csvfile:
         # reader = csv.reader(opened_csvfile, delimiter=' ', quotechar='|')
         reader = csv.DictReader(opened_csvfile)

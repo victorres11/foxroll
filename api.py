@@ -4,6 +4,7 @@ import logging
 logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
+FOXROLL_SEGMENT_WRITE_KEY = "TRHR0eTFmnb6cdNcQD2GeTW6ds5k6MMO"
 
 def on_error(error, items):
     print("An error occurred:", error)
@@ -20,16 +21,11 @@ analytics.debug = True
 #   'traits.last_name': 'Silveri',
 #   'userId': '1ac44fe1-183d-4219-9f13-d9ebecd0bfef'},
 
-def segment_api_call(segment_write_key, csv_output):
+def segment_api_call(segment_write_key, user_id_header, csv_output):
     logger.info("Instantiating new client with write_key: {}".format(segment_write_key))
     segment_client = analytics.Client(segment_write_key, debug=True, on_error=on_error, send=True, max_queue_size=100000)
 
     for call_data in csv_output:
-        # call_api
-        logger.info("Initiating batch...")
-        segment_client.identify(call_data['userId'], {
-        'email': call_data['traits.email'],
-        'first_name': call_data['traits.first_name'],
-        'last_name': call_data['traits.last_name'],
-        'joined_via': call_data['traits.joined_via']
-    })
+        user_id = call_data.pop(user_id_header)
+        logger.info("Initiating batch of api calls...")
+        segment_client.identify(user_id, call_data)

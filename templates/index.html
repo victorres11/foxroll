@@ -1,31 +1,33 @@
 <!doctype html>
-<head>
-  <title>FoxRoll</title>
-  <h1>FoxRoll</h1>
-</head>
+  <head>
+    <title>FoxRoll</title>
+    <h1>FoxRoll</h1>
+  </head>
 
-<form method=post enctype=multipart/form-data>
-  <p><input type=file name=file>
-     <input type=submit value=preview_call>
-</form>
-<br></br>
+  <form method=post enctype=multipart/form-data>
+    <p><input type=file name=file>
+       <input type=submit value=preview_call>
+  </form>
+  <br></br>
 
-{% for output in csv_output %}
-  <p>{{ output }}</p>
-{% endfor %}
+  {% for output in csv_output %}
+    <p>{{ output }}</p>
+    {% endfor %}
 
-<br></br>
-    <form method="POST" action="/segment_api_call">
-    <div>
-      <label for="segment_write_key">Segment Write Key: </label>
-      <input type="text" id="segment_write_key" name="segment_write_key" value={{ segment_write_key }} required>
-    </div>
-    <br></br>
-    <br></br>
-    <div>
-      <button>Segment API CALL</button>
-    </div>
-    </form>
+  <form method="POST" action="/segment_api_call">
+  <div>
+    <label for="segment_write_key">Segment Write Key: </label>
+    <input type="text" id="segment_write_key" name="segment_write_key" value={{ segment_write_key }} required>
+  </div>
+  <div>
+    <label for="user_id_header">What is the column header for the user id? </label>
+    <input type="text" id="user_id_header" name="user_id_header" value={{ user_id_header }} required>
+  </div>
+  <br></br>
+  <div>
+    <button>Segment API CALL</button>
+  </div>
+  </form>
   </div>
 
 </html>
