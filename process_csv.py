@@ -7,7 +7,5 @@ def process_csv(csvfile):
         reader = csv.DictReader(opened_csvfile)
         csv_output = []
         for line in reader:
-            print "loop in csv reader"
-            print line
             csv_output.append(line)
         return csv_output

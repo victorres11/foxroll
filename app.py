@@ -39,8 +39,7 @@ def upload_file():
             # return redirect(url_for('uploaded_file', filename=filename))
             processed_csv = process_csv(file)
             session['csv_output'] = processed_csv
-            print "processed_csv"
-            print processed_csv
+            app.logger.info('processed csv')
             return render_template("index.html", form=form, csv_output=session['csv_output'])
 
     return render_template("index.html", form=form, processed_csv=None)
@@ -56,8 +55,8 @@ def uploaded_file(filename):
 @app.route('/segment_api_call', methods=['GET', 'POST'])
 def api_call():
     """ API CALL"""
+    app.logger.info('logger in api_call')
     segment_write_key = request.form['segment_write_key']
-    print session['csv_output']
     segment_api_call(segment_write_key, session['csv_output'])
-    return render_template("index.html", form=FlaskForm(), csv_output=session['csv_output'])
+    return render_template("index.html", form=FlaskForm(), csv_output=session['csv_output'], segment_write_key=segment_write_key)
     # return "Hello segment api call"
