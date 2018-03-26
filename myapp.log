@@ -1,0 +1,11 @@
+INFO:root:Started
+INFO:root:foo
+INFO:root:So should this
+WARNING:root:And this, too
+INFO:root:So should this
+WARNING:root:And this, too
+INFO:root:Doing something
+WARNING:root:foo
+WARNING:root:foo
+WARNING:root:debug
+WARNING:root:debug
