@@ -4,15 +4,39 @@
     <h1>FoxRoll</h1>
   </head>
 
-  <form method=post enctype=multipart/form-data>
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      <ul class=flashes>
+      {% for message in messages %}
+        <li>{{ message }}</li>
+      {% endfor %}
+      </ul>
+      {% endif %}
+  {% endwith %}
+  {% block body %}{% endblock %}
+
+  <form method=post enctype=multipart/form-data action="/">
     <p><input type=file name=file>
        <input type=submit value=preview_call>
   </form>
   <br></br>
 
-  {% for output in csv_output %}
-    <p>{{ output }}</p>
+  <table style="width:100%">
+    <tr>
+    {% for header in csv_output[0] %}
+        <th>{{ header }}</th>
     {% endfor %}
+    </tr>
+
+  {% for row_data in csv_output %}
+    <tr>
+    {% for value in row_data.values() %}
+      <td style="text-align:center">{{ value }}</td>
+    {% endfor %}
+    </tr>
+  {% endfor %}
+  </table>
+  <br></br>
 
   <form method="POST" action="/segment_api_call">
   <div>

@@ -17,15 +17,6 @@ def on_error(error, items):
 analytics.on_error = on_error
 analytics.debug = True
 
-# [{'action': 'identify',
-#   'anonymousId': '7D897FDB-7DCE-4B76-AB6A-177F11441901',
-#   'timestamp': '2016-06-22T00:00:00.000Z',
-#   'traits.email': 'c.silveri@e-motion.tv+',
-#   'traits.first_name': 'Corrado',
-#   'traits.joined_via': 'organic',
-#   'traits.last_name': 'Silveri',
-#   'userId': '1ac44fe1-183d-4219-9f13-d9ebecd0bfef'},
-
 def event_api_call(client, user_id, timestamp):
     """Track foxroll updated user event."""
     logger.info("Event API Call for user: {}".format(user_id))

@@ -1,6 +1,6 @@
 import os
 import analytics
-from flask import Flask, request, redirect, url_for, render_template, send_from_directory, session
+from flask import Flask, request, redirect, url_for, render_template, send_from_directory, session, flash
 from process_csv import process_csv
 from api import segment_api_call
 from werkzeug.utils import secure_filename
@@ -13,19 +13,20 @@ ALLOWED_EXTENSIONS = set(['csv'])
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.secret_key = "foobar"
+app.secret_key = "elijah"
 app.logger.setLevel(logging.INFO)
 
-app.logger.info('Info Logger is working')
+def allowed_file(filename):
+    return '.' in filename and \
+        filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
-    app.logger.info('hello from upload_file loggerr')
     form = FlaskForm(csrf_enabled=False)
     if request.method == 'POST':
         # check if the post request has the file part
         if 'file' not in request.files:
-            flash('No file part')
+            flash('No file detected. Please upload a csv file!')
             return redirect(request.url)
         file = request.files['file']
         # if user does not select file, browser also
@@ -33,20 +34,24 @@ def upload_file():
         if file.filename == '':
             flash('No selected file')
             return redirect(request.url)
+        if not allowed_file(file.filename):
+            flash('We can only accept CSV files!')
+            return redirect(request.url)
         if file and allowed_file(file.filename):
-            # filename = secure_filename(file.filename)
-            # file.save(os.path.join(app.config['UPLOAD_FOLDER']))
-            # return redirect(url_for('uploaded_file', filename=filename))
-            processed_csv = process_csv(file)
-            session['csv_output'] = processed_csv
-            app.logger.info('processed csv')
-            return render_template("index.html", form=form, csv_output=session['csv_output'])
+            app.logger.info('Processing new csv file...')
+
+            if session.get('csv_output', None):
+                del session['csv_output']
+
+            session['csv_output'] = process_csv(file)
+            app.logger.info('Finished processing csv file...')
+            return render_template("index.html", form=form,
+                   csv_output=session.get('csv_output', None),
+                   segment_write_key=session.get('segment_write_key', None),
+                   user_id_header=session.get('user_id_header', None)
+                   )
 
     return render_template("index.html", form=form, processed_csv=None)
-
-def allowed_file(filename):
-    return '.' in filename and \
-        filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
@@ -54,10 +59,15 @@ def uploaded_file(filename):
 
 @app.route('/segment_api_call', methods=['GET', 'POST'])
 def api_call():
-    """ API CALL"""
+    """ Make segment api calls."""
     app.logger.info('logger in api_call')
-    segment_write_key = request.form['segment_write_key']
-    user_id_header = request.form['user_id_header']
+    segment_write_key = session['segment_write_key'] = request.form['segment_write_key']
+    user_id_header    = session['user_id_header'] = request.form['user_id_header']
+
     segment_api_call(segment_write_key, user_id_header, session['csv_output'])
-    return render_template("index.html", form=FlaskForm(), csv_output=session['csv_output'], segment_write_key=segment_write_key, user_id_header=user_id_header)
-    # return "Hello segment api call"
+
+    return render_template("index.html", form=FlaskForm(),
+            csv_output=session.get('csv_output', None),
+            segment_write_key=segment_write_key,
+            user_id_header=user_id_header
+            )
