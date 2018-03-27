@@ -8,7 +8,7 @@ from flask_wtf import FlaskForm
 import logging
 from logging.config import dictConfig
 
-UPLOAD_FOLDER = '/upload'
+UPLOAD_FOLDER = 'app/upload/'
 ALLOWED_EXTENSIONS = set(['csv'])
 
 app = Flask(__name__)
@@ -38,12 +38,18 @@ def upload_file():
             flash('We can only accept CSV files!')
             return redirect(request.url)
         if file and allowed_file(file.filename):
-            app.logger.info('Processing new csv file...')
+            app.logger.info('Saving file to server...')
+            filename = secure_filename(file.filename)
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            app.logger.info('File path: {}'.format(file_path))
+            file.save(os.path.join(file_path))
+            app.logger.info('File saved...')
 
             if session.get('csv_output', None):
                 del session['csv_output']
 
-            session['csv_output'] = process_csv(file)
+            app.logger.info('Processing new csv file...')
+            session['csv_output'] = process_csv(file_path)
             app.logger.info('Finished processing csv file...')
             return render_template("index.html", form=form,
                    csv_output=session.get('csv_output', None),

@@ -1,8 +1,7 @@
 import csv
 
-def process_csv(csvfile):
-    # import ipdb; ipdb.set_trace()
-    with open(csvfile.filename, 'rb') as opened_csvfile:
+def process_csv(file_path):
+    with open(file_path, 'rb') as opened_csvfile:
         # reader = csv.reader(opened_csvfile, delimiter=' ', quotechar='|')
         reader = csv.DictReader(opened_csvfile)
         csv_output = []
