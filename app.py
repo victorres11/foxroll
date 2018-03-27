@@ -70,12 +70,13 @@ def api_call():
     segment_write_key = session['segment_write_key'] = request.form['segment_write_key']
     user_id_header    = session['user_id_header'] = request.form['user_id_header']
 
-    segment_api_call(segment_write_key, user_id_header, session['csv_output'])
+    success = segment_api_call(segment_write_key, user_id_header, session['csv_output'])
 
     return render_template("index.html", form=FlaskForm(),
             csv_output=session.get('csv_output', None),
             segment_write_key=segment_write_key,
-            user_id_header=user_id_header
+            user_id_header=user_id_header,
+            success=success
             )
 
 if __name__ == '__main__':

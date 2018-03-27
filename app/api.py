@@ -46,3 +46,4 @@ def segment_api_call(segment_write_key, user_id_header, csv_output):
         event_api_call(segment_client, row_data[user_id_header], now_pacific_tz)
 
     logger.info("API batch complete!")
+    return True
