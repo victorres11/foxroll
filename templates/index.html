@@ -43,11 +43,11 @@
   <form method="POST" action="/segment_api_call">
   <div>
     <label for="segment_write_key">Segment Write Key: </label>
-    <input type="text" id="segment_write_key" name="segment_write_key" value={{ segment_write_key }} required>
+    <input type="text" id="segment_write_key" name="segment_write_key" required value={{ segment_write_key if segment_write_key else "" }} >
   </div>
   <div>
     <label for="user_id_header">What is the column header for the user id? </label>
-    <input type="text" id="user_id_header" name="user_id_header" value={{ user_id_header }} required>
+    <input type="text" id="user_id_header" name="user_id_header" required value={{ user_id_header if user_id_header else "" }} >
   </div>
   <br></br>
   <div>
