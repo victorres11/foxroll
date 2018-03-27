@@ -1,8 +1,8 @@
 import os
 import analytics
 from flask import Flask, request, redirect, url_for, render_template, send_from_directory, session, flash
-from process_csv import process_csv
-from api import segment_api_call
+from app.process_csv import process_csv
+from app.api import segment_api_call
 from werkzeug.utils import secure_filename
 from flask_wtf import FlaskForm
 import logging
@@ -77,3 +77,6 @@ def api_call():
             segment_write_key=segment_write_key,
             user_id_header=user_id_header
             )
+
+if __name__ == '__main__':
+    app.run()

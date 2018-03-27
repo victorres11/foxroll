@@ -2,7 +2,6 @@ import csv
 
 def process_csv(file_path):
     with open(file_path, 'rb') as opened_csvfile:
-        # reader = csv.reader(opened_csvfile, delimiter=' ', quotechar='|')
         reader = csv.DictReader(opened_csvfile)
         csv_output = []
         for line in reader:
