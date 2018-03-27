@@ -15,9 +15,16 @@
   {% endwith %}
   {% block body %}{% endblock %}
 
-  <form method=post enctype=multipart/form-data action="/">
-    <p><input type=file name=file>
-       <input type=submit value=preview_call>
+  <script>
+  function processFile() {
+    document.getElementById("uploadFile").submit();
+    console.log("processFile ran")
+  }
+  </script>
+
+  <form id=uploadFile method=post enctype=multipart/form-data action="/">
+    <p><input type=file name=file onchange=processFile()>
+       <!-- <input type=submit value=preview_call> -->
   </form>
   <br></br>
 
