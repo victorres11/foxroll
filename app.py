@@ -49,10 +49,13 @@ def upload_file():
                 del session['csv_output']
 
             app.logger.info('Processing new csv file...')
-            session['csv_output'] = process_csv(file_path)
+            processed_csv = process_csv(file_path)
+            # Can't store the content of processed csv in session bc it's too big. So we store path instead.
+            session['file_path'] = file_path
             app.logger.info('Finished processing csv file...')
+
             return render_template("index.html", form=form,
-                   csv_output=session.get('csv_output', None),
+                   csv_output=processed_csv,
                    segment_write_key=session.get('segment_write_key', None),
                    user_id_header=session.get('user_id_header', None)
                    )
@@ -69,11 +72,13 @@ def api_call():
     app.logger.info('logger in api_call')
     segment_write_key = session['segment_write_key'] = request.form['segment_write_key']
     user_id_header    = session['user_id_header'] = request.form['user_id_header']
+    file_path = session.get('file_path')
+    processed_csv = process_csv(file_path)
 
-    success = segment_api_call(segment_write_key, user_id_header, session['csv_output'])
+    success = segment_api_call(segment_write_key, user_id_header, processed_csv)
 
     return render_template("index.html", form=FlaskForm(),
-            csv_output=session.get('csv_output', None),
+            csv_output=processed_csv,
             segment_write_key=segment_write_key,
             user_id_header=user_id_header,
             success=success
