@@ -22,19 +22,21 @@
   <br></br>
 
   <table style="width:100%">
-    <tr>
-    {% for header in csv_output[0] %}
-        <th>{{ header }}</th>
-    {% endfor %}
-    </tr>
+    {% if csv_output %}
+      <tr>
+      {% for header in csv_output[0] %}
+          <th>{{ header }}</th>
+      {% endfor %}
+      </tr>
 
-  {% for row_data in csv_output %}
-    <tr>
-    {% for value in row_data.values() %}
-      <td style="text-align:center">{{ value }}</td>
-    {% endfor %}
-    </tr>
-  {% endfor %}
+      {% for row_data in csv_output %}
+        <tr>
+        {% for value in row_data.values() %}
+          <td style="text-align:center">{{ value }}</td>
+        {% endfor %}
+        </tr>
+      {% endfor %}
+    {% endif %}
   </table>
   <br></br>
 
