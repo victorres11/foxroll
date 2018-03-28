@@ -31,15 +31,21 @@
   </div>
   <div>
     <form method="POST" action="/">
-    <p>Or, use our S3 bucket! &nbsp;&nbsp;&nbsp;</p>
-    <input id="s3_bucket" name="s3_bucket" type="checkbox"
-    {% if is_checked  %}}
-      checked="true"
-    {% endif %}
-    >
-    <button>Use S3 Bucket</button>
+    <strong>Or, use our S3 bucket! &nbsp;&nbsp;&nbsp;</strong>
+    <i>To get access to the foxroll-csv bucket, just send us a message and we'll give you the permissions ASAP!</i>
+    <div>
+      <label for="s3_csv_file">Name of the csv file you uploaded to foxroll s3 bucket.</label>
+      <input type="text" id="s3_csv_file" name="s3_csv_file" required value={{ s3_csv_file if s3_csv_file else "" }} >
+      <div>
+      <input id="s3_bucket" name="s3_bucket" type="checkbox"
+      {% if is_checked  %}}
+        checked="true"
+      {% endif %}
+      >
+      <button>Use S3 Bucket</button>
+    </div>
+    </div>
     </form>
-    <p>To get access to the foxroll-csv bucket, just send us a message and we'll give you the permissions ASAP!</p>
     <!-- <label for="aws_access_key_id">aws_access_key_id: </label>
     <input type="text" id="aws_access_key_id" name="aws_access_key_id" required value={{ aws_access_key_id if aws_access_key_id else "" }} >
 
@@ -52,6 +58,15 @@
     <!-- <button>submit</button> -->
   </div>
   <br></br>
+  <style>
+  table, th, td {
+   border: 1px solid black;
+   border-collapse: collapse;
+   min-width: 20px;
+  }
+
+
+  </style>
 
   <table style="width:100%">
     {% if csv_output %}
@@ -60,8 +75,8 @@
           <th>{{ header }}</th>
       {% endfor %}
       </tr>
-
-      {% for row_data in csv_output %}
+      <!-- Preview 25 rows of data. -->
+      {% for row_data in csv_output[:25] %}
         <tr>
         {% for value in row_data.values() %}
           <td style="text-align:center">{{ value }}</td>
@@ -80,10 +95,15 @@
   </div>
   <div>
     <label for="user_id_header">What is the column header for the user id? </label>
-    <input type="text" id="user_id_header" name="user_id_header" required value={{ user_id_header if user_id_header else "" }} >
-
+    <select name="user_id_header">
+      {% for header in csv_output[0] %}
+        <option value={{header}}
+        {% if header == user_id_header %}
+          selected
+        {% endif %}
+        >{{header}}</option>
+      {% endfor %}
     <input type="hidden" id="s3_bucket_checked" name="s3_bucket_checked" required value={{ is_checked }} >
-    <!-- <input type="text" id={{ "s3_bucket_checked_id" if is_checked else "" }} name={{ "s3_bucket_checked_name" if is_checked else "" }} value={{ "s3_bucket_checked_name" if is_checked else "" }}> -->
    </div>
   <br></br>
   <div>
