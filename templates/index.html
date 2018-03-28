@@ -37,13 +37,17 @@
       <label for="s3_csv_file">Name of the csv file you uploaded to foxroll s3 bucket.</label>
       <input type="text" id="s3_csv_file" name="s3_csv_file" required value={{ s3_csv_file if s3_csv_file else "" }} >
       <div>
+        <p>Click the checkmark to use S3 Bucket:
       <input id="s3_bucket" name="s3_bucket" type="checkbox"
       {% if is_checked  %}}
         checked="true"
       {% endif %}
       >
+      </p>
+      </div>
+
       <button>Use S3 Bucket</button>
-    </div>
+
     </div>
     </form>
     <!-- <label for="aws_access_key_id">aws_access_key_id: </label>
@@ -64,8 +68,6 @@
    border-collapse: collapse;
    min-width: 20px;
   }
-
-
   </style>
 
   <table style="width:100%">
