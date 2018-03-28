@@ -1,8 +1,9 @@
 import os
 import analytics
 from flask import Flask, request, redirect, url_for, render_template, send_from_directory, session, flash
-from app.process_csv import process_csv
+from app.process_csv import process_csv, parse_csv_into_dict
 from app.api import segment_api_call
+from app.s3_access import read_s3_file
 from werkzeug.utils import secure_filename
 from flask_wtf import FlaskForm
 import logging
@@ -10,6 +11,7 @@ from logging.config import dictConfig
 
 UPLOAD_FOLDER = 'app/upload/'
 ALLOWED_EXTENSIONS = set(['csv'])
+NEEDED_FORM_NAMES_FOR_S3 = ['aws_access_key_id', 'aws_access_secret_key_id', 'bucket_name', 'aws_region']
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -24,7 +26,23 @@ def allowed_file(filename):
 def upload_file():
     form = FlaskForm()
     if request.method == 'POST':
-        # check if the post request has the file part
+        # if all(form_name in request.form.keys() for form_name in NEEDED_FORM_NAMES_FOR_S3):
+        if request.form.get('s3_bucket', None):
+            # Download S3 file and process that csv
+            app.logger.info("S3 Bucket Checked!")
+            s3_contents = read_s3_file('foxroll-csv', 'simple_sample_csv.csv')
+            app.logger.info("s3_contents: {}".format(s3_contents))
+            parsed_csv = parse_csv_into_dict(s3_contents)
+            app.logger.info("parsed_csv: {}".format(parsed_csv))
+
+            return render_template("index.html", form=form,
+                   csv_output=parsed_csv,
+                   is_checked=True,
+                   segment_write_key=session.get('segment_write_key', None),
+                   user_id_header=session.get('user_id_header', None)
+                   )
+
+        # Check if the post request has the file part.
         if 'file' not in request.files:
             flash('No file detected. Please upload a csv file!')
             return redirect(request.url)
@@ -50,6 +68,7 @@ def upload_file():
 
             app.logger.info('Processing new csv file...')
             processed_csv = process_csv(file_path)
+
             # Can't store the content of processed csv in session bc it's too big. So we store path instead.
             session['file_path'] = file_path
             app.logger.info('Finished processing csv file...')
@@ -60,7 +79,11 @@ def upload_file():
                    user_id_header=session.get('user_id_header', None)
                    )
 
-    return render_template("index.html", form=form, processed_csv=None)
+    return render_template("index.html", form=form,
+           csv_output=None,
+           segment_write_key=session.get('segment_write_key', None),
+           user_id_header=session.get('user_id_header', None)
+           )
 
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
@@ -72,13 +95,24 @@ def api_call():
     app.logger.info('logger in api_call')
     segment_write_key = session['segment_write_key'] = request.form['segment_write_key']
     user_id_header    = session['user_id_header'] = request.form['user_id_header']
-    file_path = session.get('file_path')
-    processed_csv = process_csv(file_path)
 
-    success = segment_api_call(segment_write_key, user_id_header, processed_csv)
+    s3_bucket_checked = bool(request.form.get('s3_bucket_checked', None))
+    app.logger.info('s3_bucket_checked {}'.format(s3_bucket_checked))
+
+    if s3_bucket_checked:
+        app.logger.info("In if statement!")
+        s3_contents = read_s3_file('foxroll-csv', 'simple_sample_csv.csv')
+        parsed_csv = parse_csv_into_dict(s3_contents)
+        app.logger.info('processed file from s3...')
+    else:
+        file_path = session.get('file_path', None)
+        parsed_csv = process_csv(file_path)
+        app.logger.info('processed file from csv upload...')
+
+    success = segment_api_call(segment_write_key, user_id_header, parsed_csv)
 
     return render_template("index.html", form=FlaskForm(),
-            csv_output=processed_csv,
+            csv_output=parsed_csv,
             segment_write_key=segment_write_key,
             user_id_header=user_id_header,
             success=success

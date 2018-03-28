@@ -17,15 +17,40 @@
 
   <script>
   function processFile() {
+    // This processes the file upon upload instead of requiring a separate
+    // to do it.
     document.getElementById("uploadFile").submit();
-    console.log("processFile ran")
   }
   </script>
+  <div>
+    <form id="uploadFile" method=post enctype=multipart/form-data action="/">
+      <label for="uploadFile">Upload CSV file: </label>
+      <input type=file name="uploadFile" onchange=processFile()>
+    </p>
+    </form>
+  </div>
+  <div>
+    <form method="POST" action="/">
+    <p>Or, use our S3 bucket! &nbsp;&nbsp;&nbsp;</p>
+    <input id="s3_bucket" name="s3_bucket" type="checkbox"
+    {% if is_checked  %}}
+      checked="true"
+    {% endif %}
+    >
+    <button>Use S3 Bucket</button>
+    </form>
+    <p>To get access to the foxroll-csv bucket, just send us a message and we'll give you the permissions ASAP!</p>
+    <!-- <label for="aws_access_key_id">aws_access_key_id: </label>
+    <input type="text" id="aws_access_key_id" name="aws_access_key_id" required value={{ aws_access_key_id if aws_access_key_id else "" }} >
 
-  <form id=uploadFile method=post enctype=multipart/form-data action="/">
-    <p><input type=file name=file onchange=processFile()>
-       <!-- <input type=submit value=preview_call> -->
-  </form>
+    <label for="aws_access_secret_key_id">aws_access_secret_key_id: </label>
+    <input type="text" id="aws_access_secret_key_id" name="aws_access_secret_key_id" required value={{ aws_access_secret_key_id if aws_access_secret_key_id else "" }} >
+    <label for="bucket_name">bucket_name: </label>
+    <input type="text" id="bucket_name" name="bucket_name" required value={{ bucket_name if bucket_name else "" }} >
+    <label for="aws_region">aws_region: </label>
+    <input type="text" id="aws_region" name="aws_region" required value={{ aws_region if aws_region else "" }} > -->
+    <!-- <button>submit</button> -->
+  </div>
   <br></br>
 
   <table style="width:100%">
@@ -49,13 +74,17 @@
 
   <form method="POST" action="/segment_api_call">
   <div>
+    <!-- <input id="s3_bucket" name="s3_bucket"> -->
     <label for="segment_write_key">Segment Write Key: </label>
     <input type="text" id="segment_write_key" name="segment_write_key" required value={{ segment_write_key if segment_write_key else "" }} >
   </div>
   <div>
     <label for="user_id_header">What is the column header for the user id? </label>
     <input type="text" id="user_id_header" name="user_id_header" required value={{ user_id_header if user_id_header else "" }} >
-  </div>
+
+    <input type="hidden" id="s3_bucket_checked" name="s3_bucket_checked" required value={{ is_checked }} >
+    <!-- <input type="text" id={{ "s3_bucket_checked_id" if is_checked else "" }} name={{ "s3_bucket_checked_name" if is_checked else "" }} value={{ "s3_bucket_checked_name" if is_checked else "" }}> -->
+   </div>
   <br></br>
   <div>
     <button>Segment API CALL</button>
