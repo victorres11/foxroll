@@ -141,6 +141,7 @@
       <!-- <input id="s3_bucket" name="s3_bucket"> -->
       <label for="segment_write_key">Segment Write Key: </label>
       <input type="text" id="segment_write_key" name="segment_write_key"   class="form-control" aria-describedby="segmentWriteKey" placeholder="Enter Segment Write Key" required value={{ segment_write_key if segment_write_key else "" }}>
+      <small id="emailHelp" class="form-text text-muted">Go to your segment.io account settings to get your write key.</small>
     </div>
 
     <div class="form-group">
@@ -155,6 +156,7 @@
         {% endfor %}
         <!-- remove below -->
       <input type="hidden" id="s3_bucket_checked" name="s3_bucket_checked" required value={{ is_checked }} >
+      <small id="emailHelp" class="form-text text-muted">Select from the options available.</small>
     </div>
 
     <!-- <div class="form-group">
