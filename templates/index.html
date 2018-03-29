@@ -22,7 +22,7 @@
     document.getElementById("uploadFile").submit();
   }
   </script>
-  <div>
+  <div id="uploadFile_div">
     <form id="uploadFile" method=post enctype=multipart/form-data action="/">
       <label for="uploadFile">Upload CSV file: </label>
       <input type=file name="uploadFile" onchange=processFile()>

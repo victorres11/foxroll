@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>React - Bootstrap Theme</title>
+  <title>FoxRoll</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <link rel="shortcut icon" href="images/favicon.ico">
@@ -24,8 +24,8 @@
   <div class="navbar navbar-dark navbar-expand-lg" role="banner">
     <div class="container">
       <a class="navbar-brand" href="index.html">
-        <img src="images/logo-light.png" class="mr-2 img-fluid" />
-        React
+        <img src="{{ url_for('static', filename='images/logo-light.png') }}" class="mr-2 img-fluid" />
+        FoxRoll
       </a>
 
       <button class="navbar-toggler" data-toggle="collapse" data-target="#navbar-collapse">
@@ -34,100 +34,6 @@
 
       <div class="collapse navbar-collapse justify-content-end" id="navbar-collapse">
         <ul class="navbar-nav">
-          <li class="nav-item dropdown">
-            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
-              Home Pages
-              <i class="ion-chevron-down"></i>
-            </a>
-            <div class="dropdown-menu">
-              <a class="dropdown-item" href="index.html">Home 1 (Current)</a>
-              <a class="dropdown-item" href="index2.html">Home 2 (Slider)</a>
-              <a class="dropdown-item" href="index3.html">Home 3 (Off-canvas menu)</a>
-            </div>
-          </li>
-          <li class="nav-item dropdown">
-            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
-              Showcase
-              <i class="ion-chevron-down"></i>
-            </a>
-            <div class="dropdown-menu">
-              <a class="dropdown-item" href="features.html">Features</a>
-              <a class="dropdown-item" href="services.html">Services</a>
-            </div>
-          </li>
-          <li class="nav-item active dropdown">
-            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
-              Pricing
-              <i class="ion-chevron-down"></i>
-            </a>
-            <div class="dropdown-menu">
-              <a class="dropdown-item" href="pricing.html">Pricing charts</a>
-              <a class="dropdown-item" href="charts.html">Comparison tables</a>
-            </div>
-          </li>
-          <li class="nav-item dropdown">
-            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
-              More pages
-              <i class="ion-chevron-down"></i>
-            </a>
-            <div class="dropdown-menu">
-              <a class="dropdown-item" href="aboutus.html">About us</a>
-              <a class="dropdown-item" href="contactus.html">Contact us</a>
-              <a class="dropdown-item" href="gallery.html">Gallery</a>
-              <a class="dropdown-item" href="portfolio.html">Portfolio</a>
-              <a class="dropdown-item" href="portfolio-item.html">Portfolio Item</a>
-              <a class="dropdown-item" href="invoice.html">Invoice page</a>
-              <a class="dropdown-item" href="timeline.html">Timeline Page</a>
-              <a class="dropdown-item" href="docs.html">API Documentation</a>
-              <a class="dropdown-item" href="support.html">Support</a>
-              <a class="dropdown-item" href="support-topic.html">Support Topic</a>
-              <a class="dropdown-item" href="coming-soon.html">Coming Soon</a>
-              <a class="dropdown-item" href="status.html">Status</a>
-              <a class="dropdown-item" href="signup.html">Sign Up & Sign In</a>
-              <a class="dropdown-item" href="signup-rotate.html">Sign Up Miscellaneous</a>
-              <a class="dropdown-item" href="404.html">404 Page</a>
-            </div>
-          </li>
-          <li class="nav-item dropdown dropdown-extend">
-            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
-              Components
-              <i class="ion-chevron-down"></i>
-            </a>
-            <div class="dropdown-menu dropdown-extend-menu" role="menu">
-              <div class="row">
-                <div class="col-md-3">
-                  <a class="dropdown-item" href="docs/alerts.html"><i class="ion-alert-circled"></i> Alerts</a>
-                  <a class="dropdown-item" href="docs/animations.html"><i class="ion-wand"></i> Animations</a>
-                  <a class="dropdown-item" href="docs/badges.html"><i class="ion-ios-pricetag-outline"></i> Badges</a>
-                  <a class="dropdown-item" href="docs/buttons.html"><i class="ion-ios-paperplane"></i> Buttons</a>
-                  <a class="dropdown-item" href="docs/button-groups.html"><i class="ion-ios-browsers"></i> Button groups</a>
-                  <a class="dropdown-item" href="docs/cards.html"><i class="ion-ios-albums-outline"></i> Cards</a>
-                </div>
-                <div class="col-md-3">
-                  <a class="dropdown-item" href="docs/carousel.html"><i class="ion-android-arrow-dropright-circle"></i> Carousel</a>
-                  <a class="dropdown-item" href="docs/accordion.html"><i class="ion-navicon"></i> Accordion</a>
-                  <a class="dropdown-item" href="docs/cta.html"><i class="ion-funnel"></i> Call to action</a>
-                  <a class="dropdown-item" href="docs/dropdowns.html"><i class="ion-arrow-down-b"></i> Dropdowns</a>
-                  <a class="dropdown-item" href="docs/forms.html"><i class="ion-clipboard"></i> Forms</a>
-                  <a class="dropdown-item" href="docs/input-groups.html"><i class="ion-toggle"></i> Input groups</a>
-                </div>
-                <div class="col-md-3">
-                  <a class="dropdown-item" href="docs/icons.html"><i class="ion-social-octocat"></i> Icons</a>
-                  <a class="dropdown-item" href="docs/list-groups.html"><i class="ion-ios-list-outline"></i> List groups</a>
-                  <a class="dropdown-item" href="docs/modals.html"><i class="ion-monitor"></i> Modals</a>
-                  <a class="dropdown-item" href="docs/navs.html"><i class="ion-navigate"></i> Navs</a>
-                  <a class="dropdown-item" href="docs/navbars.html"><i class="ion-navicon-round"></i> Navbars</a>
-                  <a class="dropdown-item" href="docs/plugins.html"><i class="ion-compose"></i> New plugins</a>
-                </div>
-                <div class="col-md-3">
-                  <a class="dropdown-item" href="docs/progress.html"><i class="ion-stats-bars d-inline-block" style="transform: rotate(90deg);"></i> Progress bars</a>
-                  <a class="dropdown-item" href="docs/stats-cards.html"><i class="ion-arrow-graph-up-right"></i> Stats cards</a>
-                  <a class="dropdown-item" href="docs/tables.html"><i class="ion-grid"></i> Tables</a>
-                  <a class="dropdown-item" href="docs/typography.html"><i class="ion-paintbrush"></i> Typography</a>
-                </div>
-              </div>
-            </div>
-          </li>
           <li class="nav-item dropdown">
             <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
               Blog
@@ -147,110 +53,98 @@
       </div>
     </div>
   </div>
+  <script>
+  function makeCsvActive() {
+    var uploadCsvDiv = document.getElementById("uploadCsvFile_div");
+    var uploads3Div = document.getElementById("uploadS3File_div");
+
+    uploadCsvDiv.style.display = "block"
+    uploads3Div.style.display = "none"
+  }
+
+  function makeS3Active() {
+    var uploadCsvDiv = document.getElementById("uploadCsvFile_div");
+    var uploads3Div = document.getElementById("uploadS3File_div");
+
+    uploadCsvDiv.style.display = "none"
+    uploads3Div.style.display = "block"
+  }
+  </script>
 
   <div class="pricing-tabs-section">
     <div class="container">
       <div class="header">
-        <h3>Different pricing charts</h3>
-        <p>For some cases that you might also need</p>
+        <h3>Welcome to FoxRoll ETL</h3>
+        <p>Service for piping your CSV data into Segment</p>
       </div>
 
       <div class="tabs">
-        <div class="tab monthly active">
-          <span>Pay Monthly</span>
+        <div class="tab monthly active" onClick="makeCsvActive()">
+          <span>Use CSV</span>
         </div>
-        <div class="tab anually">
+        <div class="tab anually" onClick="makeS3Active()">
           <span>
-            Pay anually
-            <small>20% off</small>
+            Use S3
+            <small>Requires access</small>
           </span>
         </div>
       </div>
       <div class="plans">
         <div class="row">
-          <div class="plan col-md-4">
+          <div class="plan col-md-12">
             <div class="header">
               <span class="icon entypo-user"></span>
-              Solo Plan
-              <div class="price" data-monthly="$15/mo" data-anually="$150/y">
-                $15/mo
+              <div class="price" data-monthly="Upload your CSV" data-anually="Use FoxRoll S3 Bucket">
+                Upload your CSV
               </div>
             </div>
             <div class="specs">
-              <div class="spec">
-                <span class="variable">1</span> team member
+              <!-- <div class="spec">
+                <span class="variable">CSV</span> team member
+              </div> -->
+              <div class="price" data-monthly="Upload your properly formatted CSV" data-anually="Upload your properly formatted csv to foxroll's S3 Bucket">
+                <p>Upload your properly formatted CSV</p>
               </div>
-              <div class="spec">
-                <span class="variable">Digital</span> recurring billing
+              <div id="uploadCsvFile_div" style="display:block">
+                <form id="uploadFile" method=post enctype=multipart/form-data action="/">
+                  <!-- <label for="uploadFile">Upload CSV file: </label> -->
+                  <input type=file name="uploadFile" onchange=processFile()>
+                </p>
+                </form>
               </div>
-              <div class="spec">
-                <span class="variable">Virtual</span> online terminal
-              </div>
-              <div class="spec">
-                <span class="variable">100</span> total products
+
+              <div id="uploadS3File_div" style="display:none">
+                <form method="POST" action="/">
+                <div>
+                  <label for="s3_csv_file">Name of csv file.</label>
+                  <input type="text" id="s3_csv_file" name="s3_csv_file" required value={{ s3_csv_file if s3_csv_file else "" }} >
+                  <!-- <div>
+                    <p>Click the checkmark to use S3 Bucket:
+                  <input id="s3_bucket" name="s3_bucket" type="checkbox"
+                  {% if is_checked  %}}
+                    checked="true"
+                  {% endif %}
+                  >
+                  </p>
+                  </div> -->
+
+                  <!-- <button>Use S3 Bucket</button> -->
+
+                </div>
+                </form>
               </div>
             </div>
           </div>
-          <div class="plan col-md-4 middle">
-            <div class="header">
-              <span class="icon entypo-users"></span>
-              Team Plan
-              <div class="price" data-monthly="$49/mo" data-anually="$550/y">
-                $49/mo
-              </div>
-            </div>
-            <div class="specs">
-              <div class="spec">
-                <span class="variable">20</span> team members
-              </div>
-              <div class="spec">
-                <span class="variable">Digital</span> recurring billing
-              </div>
-              <div class="spec">
-                <span class="variable">Virtual</span> online terminal
-              </div>
-              <div class="spec">
-                <span class="variable">225</span> total products
-              </div>
-              <div class="spec">
-                <span class="variable">Virtual</span> ssh keys
-              </div>
-            </div>
-          </div>
-          <div class="plan col-md-4">
-            <div class="header">
-              <span class="icon entypo-suitcase"></span>
-              Agency Plan
-              <div class="price" data-monthly="$99/mo" data-anually="$1,100/y">
-                $15/mo
-              </div>
-            </div>
-            <div class="specs">
-              <div class="spec">
-                <span class="variable">Unlimited</span> team members
-              </div>
-              <div class="spec">
-                <span class="variable">Digital</span> recurring billing
-              </div>
-              <div class="spec">
-                <span class="variable">Virtual</span> online terminal
-              </div>
-              <div class="spec">
-                <span class="variable">Unlimited</span> total products
-              </div>
-              <div class="spec">
-                <span class="variable">Virtual</span> ssh keys
-              </div>
-            </div>
+
           </div>
         </div>
       </div>
       <div class="signup">
         <a href="signup.html" class="btn-shadow btn-shadow-success btn-shadow-lg">
-          Start your unlimited trial for 30 days
+          Send Data to Segment
         </a>
         <div class="message">
-          30-day money-back guarantee that starts after your first payment.
+          Please test on a segment instance first. Once data is written to segment we can't alter.
         </div>
       </div>
     </div>
