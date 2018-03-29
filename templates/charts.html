@@ -85,22 +85,30 @@
               <!-- <div class="spec">
                 <span class="variable">CSV</span> team member
               </div> -->
-              <div class="price" data-monthly="Upload your properly formatted CSV" data-anually="Upload your properly formatted csv to foxroll's S3 Bucket">
+              <!-- <div class="price" data-monthly="Upload your properly formatted CSV" data-anually="Upload your properly formatted csv to foxroll's S3 Bucket">
                 <p>Upload your properly formatted CSV</p>
-              </div>
-              <div id="uploadCsvFile_div" style="display:block">
-                <form id="uploadFile" method=post enctype=multipart/form-data action="/">
-                  <!-- <label for="uploadFile">Upload CSV file: </label> -->
-                  <input type=file name="uploadFile" onchange=processFile()>
-                </p>
+              </div> -->
+
+                <form id="uploadFile"  method=post enctype=multipart/form-data action="/">
+                  <div id="uploadCsvFile_div"  style="display:block">
+                  <label for="uploadFile"></label>
+                  <input type=file name="uploadFile" aria-describedby="fileHelp" onchange=processFile()>
+                   <small id="fileHelp" class="form-text text-muted">Make sure you are uploading a .csv file.</small>
+                   </div>
+                   <!-- <div class="form-group">
+                   <label for="exampleInputFile">File input</label>
+                   <input type="file" class="form-control-file" id="exampleInputFile" aria-describedby="fileHelp">
+                   <small id="fileHelp" class="form-text text-muted">This is some placeholder block-level help text for the above input. It's a bit lighter and easily wraps to a new line.</small>
+                  </div> -->
                 </form>
-              </div>
+
 
               <div id="uploadS3File_div" style="display:none">
                 <form method="POST" action="/">
                 <div>
                   <label for="s3_csv_file">Name of csv file.</label>
                   <input type="text" id="s3_csv_file" name="s3_csv_file" required value={{ s3_csv_file if s3_csv_file else "" }} >
+                  <small id="s3Help" class="form-text text-muted">Make sure you have access to the foxroll s3 bucket. Contact us if you need access.</small>
                   <!-- <div>
                     <p>Click the checkmark to use S3 Bucket:
                   <input id="s3_bucket" name="s3_bucket" type="checkbox"
@@ -124,6 +132,37 @@
       </div>
 
           </div>
+  </div>
+
+  <div class="container col-md-6 ">
+
+    <form method="POST" action="/segment_api_call">
+    <div class="form-group">
+      <!-- <input id="s3_bucket" name="s3_bucket"> -->
+      <label for="segment_write_key">Segment Write Key: </label>
+      <input type="text" id="segment_write_key" name="segment_write_key"   class="form-control" aria-describedby="segmentWriteKey" placeholder="Enter Segment Write Key" required value={{ segment_write_key if segment_write_key else "" }}>
+    </div>
+
+    <div class="form-group">
+      <label for="user_id_header">What is the column header for the user id? </label>
+      <select name="user_id_header" class="form-control" id="user_id_header">
+        {% for header in csv_output[0] %}
+          <option value={{header}}
+          {% if header == user_id_header %}
+            selected
+          {% endif %}
+          >{{header}}</option>
+        {% endfor %}
+        <!-- remove below -->
+      <input type="hidden" id="s3_bucket_checked" name="s3_bucket_checked" required value={{ is_checked }} >
+    </div>
+
+    <!-- <div class="form-group">
+    <label for="exampleInputFile">File input</label>
+    <input type="file" class="form-control-file" id="exampleInputFile" aria-describedby="fileHelp">
+    <small id="fileHelp" class="form-text text-muted">This is some placeholder block-level help text for the above input. It's a bit lighter and easily wraps to a new line.</small> -->
+
+
   </div>
 
 <div class="container-preview-table col-md-12">
