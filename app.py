@@ -13,7 +13,7 @@ UPLOAD_FOLDER = 'app/upload/'
 ALLOWED_EXTENSIONS = set(['csv'])
 NEEDED_FORM_NAMES_FOR_S3 = ['aws_access_key_id', 'aws_access_secret_key_id', 'bucket_name', 'aws_region']
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder="static")
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.secret_key = "elijah"
 app.logger.setLevel(logging.INFO)
@@ -113,6 +113,10 @@ def api_call():
             user_id_header=user_id_header,
             success=success
             )
+
+@app.route('/foxroll_etl', methods=['GET', 'POST'])
+def foxroll_etl():
+    return render_template("charts.html")
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
