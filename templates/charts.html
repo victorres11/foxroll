@@ -133,21 +133,27 @@
   </div>
 
   <table class="table">
+    {% if csv_output %}
       <thead>
         <tr>
-          <th>#</th>
-          <th>First Name</th>
+          {% for header in csv_output[0] %}
+          <th style="text-align:center">{{header}}</th>
+          {% endfor %}
+          <!-- <th>First Name</th>
           <th>Last Name</th>
-          <th>Username</th>
+          <th>Username</th> -->
+          <!-- Preview 25 rows of data. -->
+          {% for row_data in csv_output[:25] %}
+            <tr>
+            {% for value in row_data.values() %}
+              <td style="text-align:center">{{ value }}</td>
+            {% endfor %}
+            </tr>
+          {% endfor %}
+        {% endif %}
         </tr>
       </thead>
       <tbody>
-      <tr>
-        <th scope="row">1</th>
-        <td>Mark</td>
-        <td>Otto</td>
-        <td>@mdo</td>
-      </tr>
     </tbody>
   </table>
 </div>
@@ -168,126 +174,49 @@
       <div class="divider"></div>
 
       <div class="main-header">
-        <h3>Comparison charts</h3>
+        <h3>Data Quality Check (beta)</h3>
         <p>
-          When you need to compare your plans or competitors
+          We ran some tests on your file
         </p>
       </div>
 
       <div class="chart clearfix d-flex align-items-stretch">
         <div class="features-col">
           <div class="header">
-            Features
+            Test Type
           </div>
           <div class="spec">
             <span class="icon brankic-calendar2"></span>
-            Sync across all your devices
+            File type
           </div>
           <div class="spec">
             <span class="icon brankic-loop"></span>
-            Recurring Billing
+            Data Type Consistency
           </div>
-          <div class="spec">
-            <span class="icon brankic-phone"></span>
-            Online terminal included
-          </div>
-          <div class="spec">
-            <span class="icon brankic-locked"></span>
-            Complete products catalog
-          </div>
-          <div class="spec">
-            <span class="icon brankic-key"></span>
-            Deployment with ssh keys
-          </div>
-          <div class="spec">
-            <span class="icon brankic-pictures3"></span>
-            Add files and photos from email
-          </div>
-          <div class="spec last">
-            <span class="icon brankic-envelope"></span>
-            Get daily email notifications
-          </div>
+
         </div>
-        <div class="plan-col d-flex flex-column">
+        <div class="plan-col d-flex flex-column align-items-stretch">
           <div class="header">
-            Solo Plan
+            Test pass or fail
             <div class="price">
-              $15/mo
+              Result
             </div>
           </div>
           <div class="spec">
-            <img src="images/checkmark.png" class="check" alt="checkmark" />
+            <img src="{{ url_for('static', filename='images/checkmark.png') }}"" class="check" alt="checkmark" />
           </div>
           <div class="spec">
-            <img src="images/checkmark.png" class="check" alt="checkmark" />
-          </div>
-          <div class="spec">
-            <img src="images/checkmark.png" class="check" alt="checkmark" />
+            <img src="{{ url_for('static', filename='images/checkmark.png') }}"" class="check" alt="checkmark" />
           </div>
 
-          <a href="signup.html" class="btn-shadow btn-shadow-success align-self-center mt-auto">Sign up free</a>
-        </div>
-        <div class="plan-col d-flex flex-column">
-          <div class="header">
-            Team Plan
-            <div class="price">
-              $49/mo
-            </div>
-          </div>
-          <div class="spec">
-            <img src="images/checkmark.png" class="check" alt="checkmark" />
-          </div>
-          <div class="spec">
-            <img src="images/checkmark.png" class="check" alt="checkmark" />
-          </div>
-          <div class="spec">
-            <img src="images/checkmark.png" class="check" alt="checkmark" />
-          </div>
-          <div class="spec">
-            <img src="images/checkmark.png" class="check" alt="checkmark" />
-          </div>
-          <div class="spec">
-            <img src="images/checkmark.png" class="check" alt="checkmark" />
-          </div>
 
-          <a href="signup.html" class="btn-shadow btn-shadow-success align-self-center mt-auto">Sign up free</a>
-        </div>
-        <div class="plan-col d-flex flex-column">
-          <div class="header">
-            Agency Plan
-            <div class="price">
-              $119/mo
-            </div>
-          </div>
-          <div class="spec">
-            <img src="images/checkmark.png" class="check" alt="checkmark" />
-          </div>
-          <div class="spec">
-            <img src="images/checkmark.png" class="check" alt="checkmark" />
-          </div>
-          <div class="spec">
-            <img src="images/checkmark.png" class="check" alt="checkmark" />
-          </div>
-          <div class="spec">
-            <img src="images/checkmark.png" class="check" alt="checkmark" />
-          </div>
-          <div class="spec">
-            <img src="images/checkmark.png" class="check" alt="checkmark" />
-          </div>
-          <div class="spec">
-            <img src="images/checkmark.png" class="check" alt="checkmark" />
-          </div>
-          <div class="spec mb-5">
-            <img src="images/checkmark.png" class="check" alt="checkmark" />
-          </div>
 
-          <a href="signup.html" class="btn-shadow btn-shadow-success align-self-center mt-auto">Sign up free</a>
         </div>
       </div>
 
-      <div class="message">
+      <!-- <div class="message">
         All of our plans come with a 30 day trial with no credit card required, we also offer a <a href="signup.html">free plan</a>.
-      </div>
+      </div> -->
 
       <div class="faq">
         <div class="header">
@@ -297,29 +226,18 @@
           <div class="row">
             <div class="col-md-6">
               <div class="question">
-                <strong>Do I need a card to signup?</strong>
+                <strong>Should this work right away?</strong>
                 <p>
-                  There are many variations of passages of Lorem Ipsum available, but the randomised words which don’t look even slightly believable. If you are anything embarrassing hidden in the middle of text.
+                  Yup, api calls to segment are instant.
                 </p>
               </div>
-              <div class="question">
-                <strong>Can I cancel at anytime?</strong>
-                <p>
-                  There are many variations of passages of Lorem Ipsum available, but the randomised words which don’t look even slightly believable. If you are anything embarrassing hidden in the middle of text.
-                </p>
-              </div>
+
             </div>
             <div class="col-md-6">
               <div class="question">
                 <strong>Can I cancel at anytime?</strong>
                 <p>
-                  There are many variations of passages of Lorem Ipsum available, but the randomised words which don’t look even slightly believable. If you are anything embarrassing hidden in the middle of text.
-                </p>
-              </div>
-              <div class="question">
-                <strong>Do I need a card to signup?</strong>
-                <p>
-                  There are many variations of passages of Lorem Ipsum available, but the randomised words which don’t look even slightly believable. If you are anything embarrassing hidden in the middle of text.
+                  No, never. This is for life.
                 </p>
               </div>
             </div>
@@ -329,87 +247,8 @@
     </div>
   </div>
 
-  <div class="footer">
+   <div class="footer">
     <div class="container">
-      <div class="row">
-        <div class="col-md-3 menu">
-          <h3>Overview</h3>
-          <ul>
-            <li>
-              <a href="features.html">Features</a>
-            </li>
-            <li>
-              <a href="services.html">Services</a>
-            </li>
-            <li>
-              <a href="pricing.html">Pricing</a>
-            </li>
-            <li>
-              <a href="support.html">Support</a>
-            </li>
-            <li>
-              <a href="blog.html">Blog</a>
-            </li>
-            <li>
-              <a href="blog.html">Coming soon</a>
-            </li>
-          </ul>
-        </div>
-        <div class="col-md-3 menu">
-          <h3>Menu</h3>
-          <ul>
-            <li>
-              <a href="features.html">About us</a>
-            </li>
-            <li>
-              <a href="services.html">Contact us</a>
-            </li>
-            <li>
-              <a href="aboutus.html">Jobs</a>
-              <a href="aboutus.html" class="hiring">
-                We're hiring!
-              </a>
-            </li>
-            <li>
-              <a href="support.html">Portfolio</a>
-            </li>
-            <li>
-              <a href="blog.html">Status</a>
-            </li>
-          </ul>
-        </div>
-        <div class="col-md-2 menu">
-          <h3>Social</h3>
-          <ul>
-            <li>
-              <a href="features.html">Youtube</a>
-            </li>
-            <li>
-              <a href="services.html">Facebook</a>
-            </li>
-            <li>
-              <a href="pricing.html">Twitter</a>
-            </li>
-          </ul>
-        </div>
-        <div class="col-md-4 newsletter">
-          <div class="signup clearfix">
-            <p>
-              Sign up for the newsletter and we'll inform you of updates, offers and more.
-            </p>
-            <form>
-              <input type="text" name="email" class="form-control" placeholder="Your email address" />
-              <input type="submit" value="Sign up" />
-            </form>
-          </div>
-          <a href="#">
-            <img src="images/social/social-tw.png" alt="twitter" />
-          </a>
-          <a href="#">
-            <img src="images/social/social-dbl.png" alt="dribbble" />
-          </a>
-        </div>
-      </div>
       <div class="credits">
         <p>Copyright © 2019. React</p>
       </div>

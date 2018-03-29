@@ -35,7 +35,7 @@ def upload_file():
             parsed_csv = parse_csv_into_dict(s3_contents)
             app.logger.info("parsed_csv: {}".format(parsed_csv))
 
-            return render_template("index.html", form=form,
+            return render_template("charts.html", form=form,
                    csv_output=parsed_csv,
                    is_checked=True,
                    segment_write_key=session.get('segment_write_key', None),
@@ -69,7 +69,7 @@ def upload_file():
             session['file_path'] = file_path
             app.logger.info('Finished processing csv file...')
 
-            return render_template("index.html", form=form,
+            return render_template("charts.html", form=form,
                    csv_output=processed_csv,
                    segment_write_key=session.get('segment_write_key', None),
                    user_id_header=session.get('user_id_header', None)

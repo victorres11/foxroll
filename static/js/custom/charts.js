@@ -13,3 +13,9 @@ function makeS3Active() {
   uploadCsvDiv.style.display = "none"
   uploads3Div.style.display = "block"
 }
+
+function processFile() {
+  // This processes the file upon upload instead of requiring a separate
+  // to do it.
+  document.getElementById("uploadFile").submit();
+}
