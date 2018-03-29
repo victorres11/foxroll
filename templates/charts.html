@@ -53,23 +53,6 @@
       </div>
     </div>
   </div>
-  <script>
-  function makeCsvActive() {
-    var uploadCsvDiv = document.getElementById("uploadCsvFile_div");
-    var uploads3Div = document.getElementById("uploadS3File_div");
-
-    uploadCsvDiv.style.display = "block"
-    uploads3Div.style.display = "none"
-  }
-
-  function makeS3Active() {
-    var uploadCsvDiv = document.getElementById("uploadCsvFile_div");
-    var uploads3Div = document.getElementById("uploadS3File_div");
-
-    uploadCsvDiv.style.display = "none"
-    uploads3Div.style.display = "block"
-  }
-  </script>
 
   <div class="pricing-tabs-section">
     <div class="container">
@@ -139,16 +122,46 @@
           </div>
         </div>
       </div>
-      <div class="signup">
-        <a href="signup.html" class="btn-shadow btn-shadow-success btn-shadow-lg">
-          Send Data to Segment
-        </a>
-        <div class="message">
-          Please test on a segment instance first. Once data is written to segment we can't alter.
-        </div>
-      </div>
+
+          </div>
+  </div>
+
+<div class="container-preview-table col-md-12">
+  <div class="header">
+    <h3>Preview Your Data</h3>
+    <p>Please check for accuracy!</p>
+  </div>
+
+  <table class="table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>First Name</th>
+          <th>Last Name</th>
+          <th>Username</th>
+        </tr>
+      </thead>
+      <tbody>
+      <tr>
+        <th scope="row">1</th>
+        <td>Mark</td>
+        <td>Otto</td>
+        <td>@mdo</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="container-signup col-md-12">
+  <div class="signup ">
+    <a href="signup.html" class="btn-shadow btn-shadow-success btn-shadow-lg">
+      Send Data to Segment
+    </a>
+    <div class="message">
+      Please test on a segment instance first. Once data is written to segment we can't alter.
     </div>
   </div>
+</div>
 
   <div class="pricing-comparison-section">
     <div class="container">
