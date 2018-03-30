@@ -53,6 +53,17 @@
       </div>
     </div>
   </div>
+{% if success %}
+  <div class="alert alert-success" role="alert" id="success-alert">
+    <strong>Well done!</strong> Sending data to segment was successful.
+  </div>
+{% endif %}
+
+{% if data_parsed_successfully %}
+<div class="alert alert-info" role="alert">
+  <strong>Good news!</strong> file was processed successfully.
+</div>
+{% endif %}
 
   <div class="pricing-tabs-section">
     <div class="container">
@@ -62,10 +73,11 @@
       </div>
 
       <div class="tabs">
-        <div class="tab monthly active" onClick="makeCsvActive()">
+        <!-- TODO: Rename tabs from monthly/anually to s3/csv -->
+        <div class="tab monthly active" id="tab-csv" onClick="makeCsvActive()">
           <span>Use CSV</span>
         </div>
-        <div class="tab anually" onClick="makeS3Active()">
+        <div class="tab anually" id="tab-s3" onClick="makeS3Active()">
           <span>
             Use S3
             <small>Requires access</small>
@@ -76,75 +88,50 @@
         <div class="row">
           <div class="plan col-md-12">
             <div class="header">
-              <span class="icon entypo-user"></span>
+              <span class="icon ion-ios-bolt-outline"></span>
+
               <div class="price" data-monthly="Upload your CSV" data-anually="Use FoxRoll S3 Bucket">
                 Upload your CSV
               </div>
             </div>
             <div class="specs">
-              <!-- <div class="spec">
-                <span class="variable">CSV</span> team member
-              </div> -->
-              <!-- <div class="price" data-monthly="Upload your properly formatted CSV" data-anually="Upload your properly formatted csv to foxroll's S3 Bucket">
-                <p>Upload your properly formatted CSV</p>
-              </div> -->
-
                 <form id="uploadFile"  method=post enctype=multipart/form-data action="/">
                   <div id="uploadCsvFile_div"  style="display:block">
                   <label for="uploadFile"></label>
                   <input type=file name="uploadFile" aria-describedby="fileHelp" onchange=processFile()>
                    <small id="fileHelp" class="form-text text-muted">Make sure you are uploading a .csv file.</small>
                    </div>
-                   <!-- <div class="form-group">
-                   <label for="exampleInputFile">File input</label>
-                   <input type="file" class="form-control-file" id="exampleInputFile" aria-describedby="fileHelp">
-                   <small id="fileHelp" class="form-text text-muted">This is some placeholder block-level help text for the above input. It's a bit lighter and easily wraps to a new line.</small>
-                  </div> -->
                 </form>
 
 
               <div id="uploadS3File_div" style="display:none">
-                <form method="POST" action="/">
+                <form method="POST" action="/" id="s3-form">
                 <div>
-                  <label for="s3_csv_file">Name of csv file.</label>
-                  <input type="text" id="s3_csv_file" name="s3_csv_file" required value={{ s3_csv_file if s3_csv_file else "" }} >
+                  <label for="s3_csv_file">Name of file in S3: </label>
+                  <!-- add validation -->
+                  <input type="text" id="s3_csv_file" name="s3_csv_file" placeholder="my_data.csv" value={{ s3_csv_file if s3_csv_file else "" }} >
                   <small id="s3Help" class="form-text text-muted">Make sure you have access to the foxroll s3 bucket. Contact us if you need access.</small>
-                  <!-- <div>
-                    <p>Click the checkmark to use S3 Bucket:
-                  <input id="s3_bucket" name="s3_bucket" type="checkbox"
-                  {% if is_checked  %}}
-                    checked="true"
-                  {% endif %}
-                  >
-                  </p>
-                  </div> -->
-
-                  <!-- <button>Use S3 Bucket</button> -->
-
+                  <button>Use S3 Bucket</button>
                 </div>
                 </form>
               </div>
             </div>
           </div>
-
           </div>
         </div>
       </div>
-
-          </div>
+    </div>
   </div>
 
   <div class="container col-md-6 ">
-
-    <form method="POST" action="/segment_api_call">
+    <form method="POST" id="segment-form" action="/segment_api_call">
     <div class="form-group">
-      <!-- <input id="s3_bucket" name="s3_bucket"> -->
       <label for="segment_write_key">Segment Write Key: </label>
       <input type="text" id="segment_write_key" name="segment_write_key"   class="form-control" aria-describedby="segmentWriteKey" placeholder="Enter Segment Write Key" required value={{ segment_write_key if segment_write_key else "" }}>
-      <small id="emailHelp" class="form-text text-muted">Go to your segment.io account settings to get your write key.</small>
+      <small id="segmentWriteKeyHelp" class="form-text text-muted">Go to your segment.io account settings to get your write key.</small>
     </div>
 
-    <div class="form-group">
+     <div class="form-group">
       <label for="user_id_header">What is the column header for the user id? </label>
       <select name="user_id_header" class="form-control" id="user_id_header">
         {% for header in csv_output[0] %}
@@ -154,17 +141,10 @@
           {% endif %}
           >{{header}}</option>
         {% endfor %}
-        <!-- remove below -->
-      <input type="hidden" id="s3_bucket_checked" name="s3_bucket_checked" required value={{ is_checked }} >
+        <!-- removing this hidden checkbox breaks the html below it, not sure why. -->
+       <input type="hidden" id="s3_bucket_checked" name="s3_bucket_checked" required value={{ is_checked }} >
       <small id="emailHelp" class="form-text text-muted">Select from the options available.</small>
     </div>
-
-    <!-- <div class="form-group">
-    <label for="exampleInputFile">File input</label>
-    <input type="file" class="form-control-file" id="exampleInputFile" aria-describedby="fileHelp">
-    <small id="fileHelp" class="form-text text-muted">This is some placeholder block-level help text for the above input. It's a bit lighter and easily wraps to a new line.</small> -->
-
-
   </div>
 
 <div class="container-preview-table col-md-12">
@@ -201,19 +181,16 @@
 
 <div class="container-signup col-md-12">
   <div class="signup ">
-    <a href="signup.html" class="btn-shadow btn-shadow-success btn-shadow-lg">
-      Send Data to Segment
-    </a>
-    <div class="message">
-      Please test on a segment instance first. Once data is written to segment we can't alter.
-    </div>
+      <button class="btn-shadow btn-shadow-success btn-shadow-lg" form="segment-form">Send Data to Segment</button>
+      <div class="message">
+        Please test on a segment instance first. Once data is written to segment we can't alter.
+      </div>
   </div>
 </div>
 
   <div class="pricing-comparison-section">
     <div class="container">
       <div class="divider"></div>
-
       <div class="main-header">
         <h3>Data Quality Check (beta)</h3>
         <p>
@@ -234,6 +211,11 @@
             <span class="icon brankic-loop"></span>
             Data Type Consistency
           </div>
+          <div class="spec">
+            <span class="icon brankic-loop"></span>
+            Empty Columns
+          </div>
+
 
         </div>
         <div class="plan-col d-flex flex-column align-items-stretch">
@@ -244,14 +226,14 @@
             </div>
           </div>
           <div class="spec">
-            <img src="{{ url_for('static', filename='images/checkmark.png') }}"" class="check" alt="checkmark" />
+            <img src="{{ url_for('static', filename='images/checkmark.png') }}" class="check" alt="checkmark" />
           </div>
           <div class="spec">
-            <img src="{{ url_for('static', filename='images/checkmark.png') }}"" class="check" alt="checkmark" />
+            <img src="{{ url_for('static', filename='images/checkmark.png') }}" class="check" alt="checkmark" />
           </div>
-
-
-
+          <div class="spec">
+            <img src="{{ url_for('static', filename='images/checkmark.png') }}" class="check" alt="checkmark" />
+          </div>
         </div>
       </div>
 
@@ -291,7 +273,7 @@
    <div class="footer">
     <div class="container">
       <div class="credits">
-        <p>Copyright © 2019. React</p>
+        <p>Copyright © 2018. FoxGrowth</p>
       </div>
     </div>
   </div>

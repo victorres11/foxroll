@@ -26,11 +26,16 @@ def allowed_file(filename):
 def upload_file():
     form = FlaskForm()
     if request.method == 'POST':
-        if request.form.get('s3_bucket', None):
+        if request.form.get('s3_csv_file', None):
             # Download S3 file and process that csv
             app.logger.info("S3 Bucket Checked!")
             s3_csv_filename = session['s3_csv_file'] = request.form['s3_csv_file']
             s3_contents = read_s3_file('foxroll-csv', s3_csv_filename)
+
+            data_parsed_successfully = False
+            if s3_contents:
+                data_parsed_successfully = True
+
             app.logger.info("s3_contents: {}".format(s3_contents))
             parsed_csv = parse_csv_into_dict(s3_contents)
             app.logger.info("parsed_csv: {}".format(parsed_csv))
@@ -40,7 +45,8 @@ def upload_file():
                    is_checked=True,
                    segment_write_key=session.get('segment_write_key', None),
                    user_id_header=session.get('user_id_header', None),
-                   s3_csv_file=session.get('s3_csv_file', None)
+                   s3_csv_file=session.get('s3_csv_file', None),
+                   data_parsed_successfully=data_parsed_successfully
                    )
 
         if request.files:
@@ -65,6 +71,10 @@ def upload_file():
             app.logger.info('Processing new csv file...')
             processed_csv = process_csv_file(file_path)
 
+            data_parsed_successfully = False
+            if processed_csv:
+                data_parsed_successfully = True
+
             # Can't store the content of processed csv in session bc it's too big. So we store path instead.
             session['file_path'] = file_path
             app.logger.info('Finished processing csv file...')
@@ -72,10 +82,11 @@ def upload_file():
             return render_template("charts.html", form=form,
                    csv_output=processed_csv,
                    segment_write_key=session.get('segment_write_key', None),
-                   user_id_header=session.get('user_id_header', None)
+                   user_id_header=session.get('user_id_header', None),
+                   data_parsed_successfully=data_parsed_successfully
                    )
 
-    return render_template("index.html", form=form,
+    return render_template("charts.html", form=form,
            csv_output=None,
            segment_write_key=session.get('segment_write_key', None),
            user_id_header=session.get('user_id_header', None)
@@ -88,15 +99,11 @@ def uploaded_file(filename):
 @app.route('/segment_api_call', methods=['GET', 'POST'])
 def api_call():
     """ Make segment api calls."""
-    app.logger.info('logger in api_call')
     segment_write_key   = session['segment_write_key'] = request.form['segment_write_key']
     user_id_header      = session['user_id_header'] = request.form['user_id_header']
-    s3_csv_file         = session['s3_csv_file']
+    s3_csv_file         = session.get('s3_csv_file', None)
 
-    s3_bucket_checked = bool(request.form.get('s3_bucket_checked', None))
-    app.logger.info('s3_bucket_checked {}'.format(s3_bucket_checked))
-
-    if s3_bucket_checked:
+    if s3_csv_file:
         s3_contents = read_s3_file('foxroll-csv', s3_csv_file)
         parsed_csv = parse_csv_into_dict(s3_contents)
         app.logger.info('processed file from s3...')
@@ -107,16 +114,12 @@ def api_call():
 
     success = segment_api_call(segment_write_key, user_id_header, parsed_csv)
 
-    return render_template("index.html", form=FlaskForm(),
+    return render_template("charts.html", form=FlaskForm(),
             csv_output=parsed_csv,
             segment_write_key=segment_write_key,
             user_id_header=user_id_header,
             success=success
             )
-
-@app.route('/foxroll_etl', methods=['GET', 'POST'])
-def foxroll_etl():
-    return render_template("charts.html")
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
