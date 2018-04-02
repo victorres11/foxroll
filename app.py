@@ -3,7 +3,7 @@ import analytics
 from flask import Flask, request, redirect, url_for, render_template, send_from_directory, session, flash
 from app.process_csv import parse_csv_into_dict, process_csv_file
 from app.api import segment_api_call
-from app.s3_access import read_s3_file
+from app.s3_access import read_s3_file, upload_to_s3
 from app.utils import parse_csv_and_call_segment
 from werkzeug.utils import secure_filename
 from flask_wtf import FlaskForm
@@ -71,13 +71,16 @@ def upload_file():
             file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             app.logger.info('File path: {}'.format(file_path))
             file.save(os.path.join(file_path))
-            app.logger.info('File saved...')
+            app.logger.info('File saved to server...')
+            upload_to_s3(filename, file_path)
+            app.logger.info('File saved to S3...')
+
 
             if session.get('csv_output', None):
                 del session['csv_output']
 
             app.logger.info('Processing new csv file...')
-            processed_csv = process_csv_file(file_path)
+            processed_csv = process_csv_file(file_path, limit=50)
 
             data_parsed_successfully = False
             if processed_csv:
@@ -114,7 +117,7 @@ def api_call():
     if s3_csv_file:
         s3_contents = read_s3_file('foxroll-csv', s3_csv_file)
         parsed_csv = parse_csv_into_dict(s3_contents, limit=50)
-        app.logger.info("length of parsed csv = {}".format(parsed_csv))
+        app.logger.info("length of parsed csv = {}".format(len(parsed_csv)))
         app.logger.info('Processed file from s3...')
         app.logger.info('Sending to Redis queue...')
         success = q.enqueue_call(
@@ -125,7 +128,7 @@ def api_call():
     else:
         file_path = session.get('file_path', None)
         parsed_csv = process_csv_file(file_path, limit=50)
-        app.logger.info("length of parsed csv = {}".format(parsed_csv))
+        app.logger.info("length of parsed csv = {}".format(len(parsed_csv)))
         app.logger.info('processed file from csv upload...')
         app.logger.info('Sending to Redis queue...')
         success = q.enqueue_call(
