@@ -12,10 +12,10 @@ FOXROLL_SEGMENT_WRITE_KEY = "TRHR0eTFmnb6cdNcQD2GeTW6ds5k6MMO"
 FOXROLL_EVENT_NAME = 'FoxRoll Updated User'
 
 def on_error(error, items):
-    print("An error occurred:", error)
+    logger.info("An error occurred:", error)
 
 analytics.on_error = on_error
-analytics.debug = True
+# analytics.debug = True
 
 def event_api_call(client, user_id, timestamp):
     """Track foxroll updated user event."""
@@ -34,18 +34,25 @@ def identify_api_call(client, user_id_header, row_data):
 def segment_api_call(segment_write_key, user_id_header, csv_output):
     """Make segment api calls for each row of csv data."""
     logger.info("Instantiating new client with write_key: {}".format(segment_write_key))
-    segment_client = analytics.Client(write_key=segment_write_key, debug=True, on_error=on_error, send=True, max_queue_size=100000)
+    segment_client = analytics.Client(write_key=segment_write_key, debug=False, on_error=on_error, send=True, max_queue_size=100000)
 
-    # Create datetime object.
     now_utc = datetime.datetime.now()
     now_pacific_tz = now_utc.replace(tzinfo=timezone("US/Pacific"))
 
     logger.info("Initiating batch of api calls...")
-    for row_data in csv_output:
+    for num, row_data in enumerate(csv_output):
         identify_api_call(segment_client, user_id_header, row_data)
         event_api_call(segment_client, row_data[user_id_header], now_pacific_tz)
+        if num > 0 and num % 25000 == 0:
+            logger.info("Flush is being attempted. We're at num {}".format(num))
+            segment_client.flush()
+            logger.info("Instantiating a new client...")
+            segment_client = analytics.Client(write_key=segment_write_key,
+                debug=False, on_error=on_error, send=True,
+                max_queue_size=100000)
 
-    logger.info("Flush is being attempted...")
+
+    logger.info("Final flush is being attempted...")
     segment_client.flush()
     logger.info("API batch complete!")
     return True
