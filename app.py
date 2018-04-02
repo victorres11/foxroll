@@ -9,6 +9,10 @@ from flask_wtf import FlaskForm
 import logging
 from logging.config import dictConfig
 
+from rq import Queue
+from rq.job import Job
+from app.worker import conn
+
 UPLOAD_FOLDER = 'app/upload/'
 ALLOWED_EXTENSIONS = set(['csv'])
 NEEDED_FORM_NAMES_FOR_S3 = ['aws_access_key_id', 'aws_access_secret_key_id', 'bucket_name', 'aws_region']
@@ -17,6 +21,8 @@ app = Flask(__name__, static_folder="static")
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.secret_key = "elijah"
 app.logger.setLevel(logging.INFO)
+
+q = Queue(connection=conn)
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -112,7 +118,9 @@ def api_call():
         parsed_csv = process_csv_file(file_path)
         app.logger.info('processed file from csv upload...')
 
-    success = segment_api_call(segment_write_key, user_id_header, parsed_csv)
+    success = q.enqueue_call(
+            func=segment_api_call, args=(segment_write_key, user_id_header, parsed_csv), result_ttl=5000
+        )
 
     return render_template("charts.html", form=FlaskForm(),
             csv_output=parsed_csv,
@@ -120,6 +128,16 @@ def api_call():
             user_id_header=user_id_header,
             success=success
             )
+
+@app.route("/results/<job_key>", methods=['GET'])
+def get_results(job_key):
+
+    job = Job.fetch(job_key, connection=conn)
+
+    if job.is_finished:
+        return str(job.result), 200
+    else:
+        return "Nay!", 202
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
