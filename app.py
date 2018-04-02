@@ -4,6 +4,7 @@ from flask import Flask, request, redirect, url_for, render_template, send_from_
 from app.process_csv import parse_csv_into_dict, process_csv_file
 from app.api import segment_api_call
 from app.s3_access import read_s3_file
+from app.utils import parse_csv_and_call_segment
 from werkzeug.utils import secure_filename
 from flask_wtf import FlaskForm
 import logging
@@ -112,16 +113,26 @@ def api_call():
 
     if s3_csv_file:
         s3_contents = read_s3_file('foxroll-csv', s3_csv_file)
-        parsed_csv = parse_csv_into_dict(s3_contents)
-        app.logger.info('processed file from s3...')
+        parsed_csv = parse_csv_into_dict(s3_contents, limit=50)
+        app.logger.info("length of parsed csv = {}".format(parsed_csv))
+        app.logger.info('Processed file from s3...')
+        app.logger.info('Sending to Redis queue...')
+        success = q.enqueue_call(
+                func=parse_csv_and_call_segment,
+                args=(segment_write_key, user_id_header, parse_csv_into_dict, s3_contents),
+                result_ttl=5000
+            )
     else:
         file_path = session.get('file_path', None)
-        parsed_csv = process_csv_file(file_path)
+        parsed_csv = process_csv_file(file_path, limit=50)
+        app.logger.info("length of parsed csv = {}".format(parsed_csv))
         app.logger.info('processed file from csv upload...')
-
-    success = q.enqueue_call(
-            func=segment_api_call, args=(segment_write_key, user_id_header, parsed_csv), result_ttl=5000
-        )
+        app.logger.info('Sending to Redis queue...')
+        success = q.enqueue_call(
+                func=parse_csv_and_call_segment,
+                args=(segment_write_key, user_id_header, process_csv_file, file_path),
+                result_ttl=5000
+            )
 
     return render_template("charts.html", form=FlaskForm(),
             csv_output=parsed_csv,
