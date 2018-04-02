@@ -8,10 +8,11 @@ from werkzeug.utils import secure_filename
 from flask_wtf import FlaskForm
 import logging
 from logging.config import dictConfig
+from worker import conn
 
 from rq import Queue
 from rq.job import Job
-from app.worker import conn
+
 
 UPLOAD_FOLDER = 'app/upload/'
 ALLOWED_EXTENSIONS = set(['csv'])
