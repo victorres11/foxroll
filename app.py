@@ -19,6 +19,8 @@ UPLOAD_FOLDER = 'app/upload/'
 ALLOWED_EXTENSIONS = set(['csv'])
 NEEDED_FORM_NAMES_FOR_S3 = ['aws_access_key_id', 'aws_access_secret_key_id', 'bucket_name', 'aws_region']
 
+S3_UPLOAD_BUCKET_NAME  = "foxroll-csv-upload"
+
 app = Flask(__name__, static_folder="static")
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.secret_key = "elijah"
@@ -67,12 +69,14 @@ def upload_file():
             return redirect(request.url)
         if file and allowed_file(file.filename):
             app.logger.info('Saving file to server...')
-            filename = secure_filename(file.filename)
-            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            app.logger.info('File path: {}'.format(file_path))
-            file.save(os.path.join(file_path))
+            filename = session['uploaded_csv_filename'] = secure_filename(file.filename)
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            app.logger.info('File path: {}'.format(filepath))
+            file.save(os.path.join(filepath))
             app.logger.info('File saved to server...')
-            upload_to_s3(filename, file_path)
+
+            app.logger.info('Initiating S3 upload...')
+            upload_to_s3(filename, filepath)
             app.logger.info('File saved to S3...')
 
 
@@ -80,14 +84,14 @@ def upload_file():
                 del session['csv_output']
 
             app.logger.info('Processing new csv file...')
-            processed_csv = process_csv_file(file_path, limit=50)
+            processed_csv = process_csv_file(filepath, limit=50)
 
             data_parsed_successfully = False
             if processed_csv:
                 data_parsed_successfully = True
 
             # Can't store the content of processed csv in session bc it's too big. So we store path instead.
-            session['file_path'] = file_path
+            session['filepath'] = filepath
             app.logger.info('Finished processing csv file...')
 
             return render_template("charts.html", form=form,
@@ -126,14 +130,16 @@ def api_call():
                 result_ttl=5000
             )
     else:
-        file_path = session.get('file_path', None)
-        parsed_csv = process_csv_file(file_path, limit=50)
+        filename = session.get('uploaded_csv_filename', None)
+        file_contents = read_s3_file(S3_UPLOAD_BUCKET_NAME, filename)
+        parsed_csv = parse_csv_into_dict(file_contents, limit=50)
         app.logger.info("length of parsed csv = {}".format(len(parsed_csv)))
         app.logger.info('processed file from csv upload...')
         app.logger.info('Sending to Redis queue...')
         success = q.enqueue_call(
                 func=parse_csv_and_call_segment,
-                args=(segment_write_key, user_id_header, process_csv_file, file_path),
+                # args=(segment_write_key, user_id_header, process_csv_file, filepath),
+                args=(segment_write_key, user_id_header, parse_csv_into_dict, file_contents),
                 result_ttl=5000
             )
 

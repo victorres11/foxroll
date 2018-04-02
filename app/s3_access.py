@@ -31,7 +31,7 @@ def does_bucket_exists():
     return exists
 
 def read_s3_file(bucket_name, file_name):
-    logger.info("Checking S3 for file {} in bucket {}".format(bucket_name, file_name))
+    logger.info("Checking S3 for file {} in bucket {}".format(file_name, bucket_name))
 
     # Doesn't seem like region is needed? Validate for sure.
     s3 = boto3.resource('s3', aws_access_key_id=aws_access_key_id,
