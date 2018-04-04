@@ -132,7 +132,7 @@ def api_call():
         filename = session.get('uploaded_csv_filename', None)
         filepath = session.get('csv_filepath', None)
         app.logger.info('Sharding files...')
-        sharded_filepaths = shard_csv(open(filepath), row_limit=100000, output_name_template='shard_%s.csv', output_path='./app/download', keep_headers=True)
+        sharded_filepaths = shard_csv(open(filepath), row_limit=50000, output_name_template='shard_%s.csv', output_path='./app/download', keep_headers=True)
         app.logger.info('{} shards made....'.format(len(sharded_filepaths)))
         shard_filecontents = open(sharded_filepaths[0]).readlines()
         parsed_csv = parse_csv_into_dict(shard_filecontents, limit=50)
