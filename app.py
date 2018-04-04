@@ -121,7 +121,6 @@ def api_call():
     if s3_csv_file:
         s3_contents = read_s3_file('foxroll-csv', s3_csv_file)
         parsed_csv = parse_csv_into_dict(s3_contents, limit=50)
-        app.logger.info("length of parsed csv = {}".format(len(parsed_csv)))
         app.logger.info('Processed file from s3...')
         app.logger.info('Sending to Redis queue...')
         success = q.enqueue_call(
@@ -131,16 +130,17 @@ def api_call():
             )
     else:
         filename = session.get('uploaded_csv_filename', None)
-        file_contents = read_s3_file(S3_UPLOAD_BUCKET_NAME, filename)
+        file_contents = read_s3_file(S3_UPLOAD_BUCKET_NAME, filename, compressed=True)
         parsed_csv = parse_csv_into_dict(file_contents, limit=50)
-        app.logger.info("length of parsed csv = {}".format(len(parsed_csv)))
         app.logger.info('processed file from csv upload...')
         app.logger.info('Sending to Redis queue...')
+
         success = q.enqueue_call(
                 func=parse_csv_and_call_segment,
                 # args=(segment_write_key, user_id_header, process_csv_file, filepath),
                 args=(segment_write_key, user_id_header, parse_csv_into_dict, file_contents),
-                result_ttl=5000
+                result_ttl=5000,
+                timeout=2000
             )
 
     return render_template("charts.html", form=FlaskForm(),

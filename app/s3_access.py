@@ -1,5 +1,9 @@
 import boto3
+import botocore
 import logging
+import gzip
+import shutil
+
 
 # logger setup
 logging.basicConfig()
@@ -11,48 +15,61 @@ aws_secret_access_key = "g8K4phkg+lyn+UldwOygV8z4UrhZ6eOf5y/aplXa" # should be u
 
 S3_BUCKET_NAME         = "foxroll-csv" # should be user input
 S3_UPLOAD_BUCKET_NAME  = "foxroll-csv-upload"
-S3_REGION              = "us-east-2"   # should be user input
+S3_REGION              = "us-east-2"
 S3_STORAGE_PREFIX      = "https://s3.{region}.amazonaws.com/{bucket_name}/".format(region=S3_REGION, bucket_name=S3_BUCKET_NAME)
 
 resource = boto3.resource('s3', region_name=S3_REGION) #high-level object-oriented API
 
+def convert_to_gzip(filename, filepath):
+    content = open(filepath)
 
-def does_bucket_exists():
-    bucket = s3.Bucket('mybucket')
-    exists = True
-    try:
-        s3.meta.client.head_bucket(Bucket='mybucket')
-    except botocore.exceptions.ClientError as e:
-        # If a client error is thrown, then check that it was a 404 error.
-        # If it was a 404 error, then the bucket does not exist.
-        error_code = int(e.response['Error']['Code'])
-        if error_code == 404:
-            exists = False
-    return exists
+    gzip_filename = '{}.gz'.format(filename)
+    gzip_filepath = filepath.replace(filename, gzip_filename)
 
-def read_s3_file(bucket_name, file_name):
-    logger.info("Checking S3 for file {} in bucket {}".format(file_name, bucket_name))
+    with open(filepath, 'rb') as f_in, gzip.open(gzip_filepath, 'wb') as f_out:
+        shutil.copyfileobj(f_in, f_out)
 
-    # Doesn't seem like region is needed? Validate for sure.
-    s3 = boto3.resource('s3', aws_access_key_id=aws_access_key_id,
+    return gzip_filename, gzip_filepath
+
+def read_gzip_file(filename):
+    with gzip.open(filename, 'rb') as f:
+        return f.read().splitlines()
+
+def init_s3_client():
+    config = botocore.config.Config(read_timeout=240, retries={'max_attempts':10})
+    return boto3.resource('s3', aws_access_key_id=aws_access_key_id,
                         aws_secret_access_key=aws_secret_access_key,
-                        region_name=S3_REGION)
+                        region_name=S3_REGION, config=config)
 
-    obj = s3.Object(bucket_name, file_name)
-    # Will download csv contests as string i.e. 'email, products_bought, last_order\npeterclark@me.com,4,123456\n'
+def read_s3_file(bucket_name, filename, compressed=False):
+    if compressed:
+        logger.info("Anticipating compressed file...")
+        filename = "{}.gz".format(filename)
 
-    contents = obj.get()['Body'].read().splitlines()
-    # reader = csv.DictReader(contents)
-    # ouput = [ line for line in reader ]
+    logger.info("Checking S3 for file {} in bucket {}".format(filename, bucket_name))
+
+    s3 = init_s3_client()
+
+    # For streaming object downloads:
+    # obj = s3.Object(bucket_name, filename).get()['Body'].read().splitlines()
+
+    # TODO: Update to use temporary files here for scalability!!!
+    filepath = 'app/download/{}'.format(filename)
+    logger.info("Downloading file to {}...".format(filepath))
+    s3.Bucket(bucket_name).download_file(filename, filepath)
+
+    logger.info("reading file...")
+    contents = read_gzip_file(filepath) if compressed else open(filepath, 'rb').read()
     return contents
 
 def upload_to_s3(filename, filepath):
-    # TODO: Do this froma  single place.
-    # filename = 'test.csv'
-    s3 = boto3.resource('s3', aws_access_key_id=aws_access_key_id,
-                        aws_secret_access_key=aws_secret_access_key,
-                        region_name=S3_REGION)
+    # TODO: refactor client to a single
+    s3 = init_s3_client()
+
     # Upload a new file
-    data = open(filepath, 'rb')
-    s3.Bucket(S3_UPLOAD_BUCKET_NAME).put_object(Key=filename, Body=data)
-    logger.info("Uploaded file {} in S3 bucket {}".format(filename, S3_UPLOAD_BUCKET_NAME))
+    logger.info("Converting csv into compressed version...")
+    gzip_filename, gzip_filepath = convert_to_gzip(filename, filepath)
+    data = open(gzip_filepath, 'rb')
+
+    s3.Bucket(S3_UPLOAD_BUCKET_NAME).put_object(Key=gzip_filename, Body=data.read())
+    logger.info("Uploaded file {} in S3 bucket {}".format(gzip_filename, S3_UPLOAD_BUCKET_NAME))
