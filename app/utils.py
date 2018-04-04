@@ -2,6 +2,12 @@ from process_csv import parse_csv_into_dict
 from api import segment_api_call
 import os
 import csv
+from s3_access import read_s3_file, S3_UPLOAD_BUCKET_NAME
+import logging
+
+logging.basicConfig()
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 def shard_csv(filehandler, delimiter=',', row_limit=200000,
@@ -54,13 +60,25 @@ def shard_csv(filehandler, delimiter=',', row_limit=200000,
     return output_paths
 
 
-def parse_csv_and_call_segment(segment_write_key, user_id_header, parse_csv_func, parse_csv_arg):
-    """Wrapper function to combine the csv parsing and segmetn api calls together.
-    Redis seems to require the function that is added to the queue to be imported and
-    not written directly in the main moduel"""
+def redis_worker_wrapper(segment_write_key, user_id_header, parse_csv_func, shard_filename):
+    """
+    This is the combination of functions we want to outsource to the worker.
 
+    1. Read the contents of the shard that's in S3
+    2. Parse that csv string into a usable dictionary
+    3. Make segment API calls
 
+    Arguments:
+        `segment_write_key`: The write key which dictates what segment instance the data will be written to.
+        `user_id_header`: The headers for the csv document.
+        `parse_csv_func`: The type of parsing function we will use, outputs a dict.
+        `shard_filename`: The filename for the shard.
+    """
+    logger.info("Reading s3 File...")
+    s3_file_contents = read_s3_file(S3_UPLOAD_BUCKET_NAME, shard_filename)
 
-    parsed_csv = parse_csv_func(parse_csv_arg)
-    print "{} - {}".format(segment_write_key, user_id_header)
+    logger.info("Parsing s3_file contents...")
+    parsed_csv = parse_csv_func(s3_file_contents)
+
+    logger.info("Calling segment api with parsed csv contents...")
     segment_api_call(segment_write_key, user_id_header, parsed_csv)

@@ -46,7 +46,6 @@ def read_s3_file(bucket_name, filename, compressed=False):
         filename = "{}.gz".format(filename)
 
     logger.info("Checking S3 for file {} in bucket {}".format(filename, bucket_name))
-
     s3 = init_s3_client()
 
     # TODO: Update to use temporary files here for scalability!!!
@@ -55,7 +54,7 @@ def read_s3_file(bucket_name, filename, compressed=False):
     s3.Bucket(bucket_name).download_file(filename, filepath)
 
     logger.info("reading file...")
-    contents = read_gzip_file(filepath) if compressed else open(filepath, 'rb').read()
+    contents = read_gzip_file(filepath) if compressed else open(filepath, 'rb').readlines()
     return contents
 
 def upload_to_s3(filename, filepath, compressed=False):
