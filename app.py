@@ -81,7 +81,13 @@ def upload_file():
             for shard_path in sharded_filepaths:
                 app.logger.info('Initiating S3 upload for {}...'.format(shard_path))
                 shard_name = shard_path.split('/')[-1]
-                upload_to_s3(shard_name, shard_path)
+                # upload_to_s3(shard_name, shard_path)
+                q.enqueue_call(
+                        func=upload_to_s3,
+                        args=(shard_name, shard_path,),
+                        result_ttl=5000,
+                        timeout=2000
+                    )
                 app.logger.info('File {} saved to S3...'.format(shard_name))
 
             app.logger.info('{} shards made....'.format(len(sharded_filepaths)))

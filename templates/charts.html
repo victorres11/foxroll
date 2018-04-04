@@ -94,6 +94,7 @@
               </div>
             </div>
             <div class="specs">
+              {% if not data_parsed_successfully %}
                 <form id="uploadFile"  method=post enctype=multipart/form-data action="/">
                   <div id="uploadCsvFile_div"  style="display:block">
                   <label for="uploadFile"></label>
@@ -101,7 +102,14 @@
                    <small id="fileHelp" class="form-text text-muted">Make sure you are uploading a .csv file.</small>
                    </div>
                 </form>
-
+              {% else %}
+                <div>
+                  File uploaded:
+                </div>
+                <div>
+                  <span class="variable">X</span> total rows
+                </div>
+              {% endif %}
 
               <div id="uploadS3File_div" style="display:none">
                 <form method="POST" action="/" id="s3-form">

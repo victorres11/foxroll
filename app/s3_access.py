@@ -59,6 +59,7 @@ def read_s3_file(bucket_name, filename, compressed=False):
 
 def upload_to_s3(filename, filepath, compressed=False):
     s3 = init_s3_client()
+    logger.info('Initiating S3 upload for {}...'.format(filepath))
 
     # Upload a new file
     if compressed:
