@@ -4,7 +4,7 @@ from flask import Flask, request, redirect, url_for, render_template, send_from_
 from app.process_csv import parse_csv_into_dict, process_csv_file
 from app.api import segment_api_call
 from app.s3_access import read_s3_file, upload_to_s3
-from app.utils import parse_csv_and_call_segment
+from app.utils import parse_csv_and_call_segment, shard_csv
 from werkzeug.utils import secure_filename
 from flask_wtf import FlaskForm
 import logging
@@ -70,15 +70,15 @@ def upload_file():
         if file and allowed_file(file.filename):
             app.logger.info('Saving file to server...')
             filename = session['uploaded_csv_filename'] = secure_filename(file.filename)
-            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            filepath = session['csv_filepath'] = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+
             app.logger.info('File path: {}'.format(filepath))
             file.save(os.path.join(filepath))
             app.logger.info('File saved to server...')
 
-            app.logger.info('Initiating S3 upload...')
-            upload_to_s3(filename, filepath)
-            app.logger.info('File saved to S3...')
-
+            # app.logger.info('Initiating S3 upload...')
+            # upload_to_s3(filename, filepath)
+            # app.logger.info('File saved to S3...')
 
             if session.get('csv_output', None):
                 del session['csv_output']
@@ -130,18 +130,28 @@ def api_call():
             )
     else:
         filename = session.get('uploaded_csv_filename', None)
-        file_contents = read_s3_file(S3_UPLOAD_BUCKET_NAME, filename, compressed=True)
-        parsed_csv = parse_csv_into_dict(file_contents, limit=50)
-        app.logger.info('processed file from csv upload...')
-        app.logger.info('Sending to Redis queue...')
+        filepath = session.get('csv_filepath', None)
+        app.logger.info('Sharding files...')
+        sharded_filepaths = shard_csv(open(filepath), row_limit=100000, output_name_template='shard_%s.csv', output_path='./app/download', keep_headers=True)
+        app.logger.info('{} shards made....'.format(len(sharded_filepaths)))
+        shard_filecontents = open(sharded_filepaths[0]).readlines()
+        parsed_csv = parse_csv_into_dict(shard_filecontents, limit=50)
 
-        success = q.enqueue_call(
-                func=parse_csv_and_call_segment,
-                # args=(segment_write_key, user_id_header, process_csv_file, filepath),
-                args=(segment_write_key, user_id_header, parse_csv_into_dict, file_contents),
-                result_ttl=5000,
-                timeout=2000
-            )
+        # parsed_csv = parse_csv_into_dict(file_contents, limit=50)
+        app.logger.info('processed file from csv upload...')
+
+        # Each shard will be it's own redis message.
+        for shard in sharded_filepaths:
+            with open(shard, 'rb') as open_shard:
+                app.logger.info('Sending {} to Redis queue...'.format(shard))
+                success = q.enqueue_call(
+                        func=parse_csv_and_call_segment,
+                        args=(segment_write_key, user_id_header, parse_csv_into_dict, open_shard.readlines(),),
+                        result_ttl=5000,
+                        timeout=2000
+                    )
+
+    app.logger.info('Finished sending to redis queue....')
 
     return render_template("charts.html", form=FlaskForm(),
             csv_output=parsed_csv,

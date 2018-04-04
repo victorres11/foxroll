@@ -4,7 +4,6 @@ import logging
 import gzip
 import shutil
 
-
 # logger setup
 logging.basicConfig()
 logger = logging.getLogger(__name__)
@@ -50,9 +49,6 @@ def read_s3_file(bucket_name, filename, compressed=False):
 
     s3 = init_s3_client()
 
-    # For streaming object downloads:
-    # obj = s3.Object(bucket_name, filename).get()['Body'].read().splitlines()
-
     # TODO: Update to use temporary files here for scalability!!!
     filepath = 'app/download/{}'.format(filename)
     logger.info("Downloading file to {}...".format(filepath))
@@ -62,14 +58,15 @@ def read_s3_file(bucket_name, filename, compressed=False):
     contents = read_gzip_file(filepath) if compressed else open(filepath, 'rb').read()
     return contents
 
-def upload_to_s3(filename, filepath):
-    # TODO: refactor client to a single
+def upload_to_s3(filename, filepath, compressed=False):
     s3 = init_s3_client()
 
     # Upload a new file
-    logger.info("Converting csv into compressed version...")
-    gzip_filename, gzip_filepath = convert_to_gzip(filename, filepath)
-    data = open(gzip_filepath, 'rb')
+    if compressed:
+        logger.info("Converting csv into compressed version...")
+        filename, filepath = convert_to_gzip(filename, filepath)
 
-    s3.Bucket(S3_UPLOAD_BUCKET_NAME).put_object(Key=gzip_filename, Body=data.read())
-    logger.info("Uploaded file {} in S3 bucket {}".format(gzip_filename, S3_UPLOAD_BUCKET_NAME))
+    data = open(filepath, 'rb')
+
+    s3.Bucket(S3_UPLOAD_BUCKET_NAME).put_object(Key=filename, Body=data.read())
+    logger.info("Uploaded file {} in S3 bucket {}".format(filename, S3_UPLOAD_BUCKET_NAME))
