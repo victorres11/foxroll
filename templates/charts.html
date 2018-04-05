@@ -94,7 +94,7 @@
               </div>
             </div>
             <div class="specs">
-              {% if not data_parsed_successfully %}
+              {% if not data_parsed_successfully and not success %}
                 <form id="uploadFile"  method=post enctype=multipart/form-data action="/">
                   <div id="uploadCsvFile_div"  style="display:block">
                   <label for="uploadFile"></label>
@@ -104,10 +104,7 @@
                 </form>
               {% else %}
                 <div>
-                  File uploaded:
-                </div>
-                <div>
-                  <span class="variable">X</span> total rows
+                  File uploaded!
                 </div>
               {% endif %}
 
@@ -154,11 +151,13 @@
     </div>
   </div>
 
+{% if data_parsed_successfully or success %}
 <div class="container-preview-table col-md-12">
   <div class="header">
     <h3>Preview Your Data</h3>
     <p>Please check for accuracy!</p>
   </div>
+{% endif %}
 
   <table class="table">
     {% if csv_output %}
@@ -186,6 +185,7 @@
   </table>
 </div>
 
+{% if data_parsed_successfully %}
 <div class="container-signup col-md-12">
   <div class="signup ">
       <button class="btn-shadow btn-shadow-success btn-shadow-lg" form="segment-form">Send Data to Segment</button>
@@ -194,6 +194,7 @@
       </div>
   </div>
 </div>
+{% endif %}
 
   <div class="pricing-comparison-section">
     <div class="container">

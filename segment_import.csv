@@ -1,6 +1,0 @@
-action,userId,anonymousId,timestamp,traits.email,traits.first_name,traits.last_name,traits.joined_via
-identify,1ac44fe1-183d-4219-9f13-d9ebecd0bfef,7D897FDB-7DCE-4B76-AB6A-177F11441901,2016-06-22T00:00:00.000Z,c.silveri@e-motion.tv+,Corrado,Silveri,organic
-identify,d03074f3-c9b5-4580-9f7f-b4d07f866491,7D897FDB-7DCE-4B76-AB6A-177F11441902,2016-06-22T00:00:00.000Z,edgar021277@yahoo.com,edgar,mendez,organic
-identify,f5525771-53f5-44c1-a0b9-1c525ed5caa8,7D897FDB-7DCE-4B76-AB6A-177F11441903,2016-06-22T00:00:00.000Z,erikr175@gmail.com,erik,rodriguez,organic
-identify,e492088b-0783-468e-aa53-178e95018e68,7D897FDB-7DCE-4B76-AB6A-177F11441904,2016-06-22T00:00:00.000Z,donvon78@yahoo.com,donv,,organic
-identify,76bb0a41-8e05-4b65-b3e4-019a81e7ebd9,7D897FDB-7DCE-4B76-AB6A-177F11441905,2016-06-22T00:00:00.000Z,2014842@jeffcoschools.us,michaelbro2,,organic

@@ -67,6 +67,5 @@ def upload_to_s3(filename, filepath, compressed=False):
         filename, filepath = convert_to_gzip(filename, filepath)
 
     data = open(filepath, 'rb')
-
     s3.Bucket(S3_UPLOAD_BUCKET_NAME).put_object(Key=filename, Body=data.read())
     logger.info("Uploaded file {} in S3 bucket {}".format(filename, S3_UPLOAD_BUCKET_NAME))

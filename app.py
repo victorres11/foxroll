@@ -77,20 +77,13 @@ def upload_file():
 
             sharded_filepaths = shard_csv(open(filepath), row_limit=100000, output_name_template='shard_%s.csv', output_path='./app/download', keep_headers=True)
             session['sharded_filepaths'] = sharded_filepaths
+            app.logger.info('{} shard(s) made....'.format(len(sharded_filepaths)))
 
             for shard_path in sharded_filepaths:
                 app.logger.info('Initiating S3 upload for {}...'.format(shard_path))
                 shard_name = shard_path.split('/')[-1]
-                # upload_to_s3(shard_name, shard_path)
-                q.enqueue_call(
-                        func=upload_to_s3,
-                        args=(shard_name, shard_path,),
-                        result_ttl=5000,
-                        timeout=2000
-                    )
+                upload_to_s3(shard_name, shard_path)
                 app.logger.info('File {} saved to S3...'.format(shard_name))
-
-            app.logger.info('{} shards made....'.format(len(sharded_filepaths)))
 
             if session.get('csv_output', None):
                 del session['csv_output']
