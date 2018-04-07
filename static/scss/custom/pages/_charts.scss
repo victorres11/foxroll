@@ -55,11 +55,6 @@
         top: -2px;
       }
 
-        &.price {
-          color: #3CA2E5;
-            // margin-top: 10px;
-        }
-
       small {
         color: #32ACDA;
         margin-left: 3px;
@@ -71,6 +66,11 @@
     margin-top: 40px;
     border: 1px solid #E3E3E3;
     border-radius: 5px;
+
+    .row {
+      margin-left: 0px !important;
+      margin-right: 0px !important;
+    }
 
     .plan {
       border-right: 0px;
