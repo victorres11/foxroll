@@ -1,7 +1,7 @@
 import os
 import analytics
 from flask import Flask, request, redirect, url_for, render_template, send_from_directory, session, flash
-from app.process_csv import parse_csv_into_dict, process_csv_file
+from app.process_csv import parse_csv_into_dict, process_csv_file, count_rows
 from app.api import segment_api_call
 from app.s3_access import read_s3_file, upload_to_s3
 from app.utils import redis_worker_wrapper, shard_csv
@@ -35,8 +35,8 @@ def allowed_file(filename):
 def upload_file():
     form = FlaskForm()
     if request.method == 'POST':
+        # Download S3 file and process that csv.
         if request.form.get('s3_csv_file', None):
-            # Download S3 file and process that csv
             app.logger.info("S3 Bucket Checked!")
             s3_csv_filename = session['s3_csv_file'] = request.form['s3_csv_file']
             s3_contents = read_s3_file('foxroll-csv', s3_csv_filename)
@@ -46,7 +46,7 @@ def upload_file():
                 data_parsed_successfully = True
 
             app.logger.info("s3_contents: {}".format(s3_contents))
-            parsed_csv = parse_csv_into_dict(s3_contents)
+            parsed_csv = parse_csv_into_dict(s3_contents, limit=50)
             app.logger.info("parsed_csv: {}".format(parsed_csv))
 
             return render_template("charts.html", form=form,
@@ -57,7 +57,7 @@ def upload_file():
                    s3_csv_file=session.get('s3_csv_file', None),
                    data_parsed_successfully=data_parsed_successfully
                    )
-
+        # Handle CSV Upload.
         if request.files:
             file = request.files['uploadFile']
         if file.filename == '':
@@ -95,6 +95,8 @@ def upload_file():
             if processed_csv:
                 data_parsed_successfully = True
 
+            csv_row_count = session['csv_row_count'] = count_rows(filepath)
+
             # Can't store the content of processed csv in session bc it's too big. So we store path instead.
             session['filepath'] = filepath
             app.logger.info('Finished processing csv file...')
@@ -103,7 +105,8 @@ def upload_file():
                    csv_output=processed_csv,
                    segment_write_key=session.get('segment_write_key', None),
                    user_id_header=session.get('user_id_header', None),
-                   data_parsed_successfully=data_parsed_successfully
+                   data_parsed_successfully=data_parsed_successfully,
+                   csv_row_count=csv_row_count or None
                    )
 
     return render_template("charts.html", form=form,
@@ -129,7 +132,7 @@ def api_call():
         app.logger.info('Processed file from s3...')
         app.logger.info('Sending to Redis queue...')
         success = q.enqueue_call(
-                func=parse_csv_and_call_segment,
+                func=redis_worker_wrapper,
                 args=(segment_write_key, user_id_header, parse_csv_into_dict, s3_contents),
                 result_ttl=5000
             )

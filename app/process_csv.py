@@ -12,8 +12,8 @@ def parse_csv_into_dict(csv_string, limit=None):
     return parsed_output
 
 
-def process_csv_file(file_path, limit=None):
-    with open(file_path, 'rb') as opened_csvfile:
+def process_csv_file(filepath, limit=None):
+    with open(filepath, 'rb') as opened_csvfile:
         reader = csv.DictReader(opened_csvfile)
         csv_output = []
 
@@ -24,3 +24,11 @@ def process_csv_file(file_path, limit=None):
                 return csv_output
 
         return csv_output
+
+def count_rows(filepath):
+    """Count number of rows present in a csvfile."""
+    with open(filepath, 'rb') as opened_csvfile:
+        csv_file = csv.reader(opened_csvfile)
+        row_count = sum(1 for row in csv_file)
+
+    return row_count
