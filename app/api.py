@@ -45,13 +45,11 @@ def segment_api_call(segment_write_key, user_id_header, csv_output):
 
     logger.info("Initiating batch of api calls...")
     for num, row_data in enumerate(csv_output):
-        # identify_api_call(segment_client, user_id_header, row_data)
-        logger.info("Pretend this is an IDENTIFTY call {} {}".format(user_id_header, row_data[user_id_header]))
-        # event_api_call(segment_client, row_data[user_id_header], now_pacific_tz)
-        logger.info("Pretend this is an EVENT call {} {}".format(row_data[user_id_header], now_pacific_tz))
+        identify_api_call(segment_client, user_id_header, row_data)
+        event_api_call(segment_client, row_data[user_id_header], now_pacific_tz)
         logger.info("Initiating batch of api calls...")
         if num > 0 and num % 25 == 0:
-            logger.info("This was just a test...")
+            logger.info("This was just a test, so we stopped at 25 api calls (per shard)...")
             return True
         if num > 0 and num % 25000 == 0:
             logger.info("Flush is being attempted. We're at num {}".format(num))
