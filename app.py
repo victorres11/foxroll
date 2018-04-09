@@ -92,7 +92,7 @@ def foxroll_form():
             app.logger.info('Saving file to server...')
             filename = session['uploaded_csv_filename'] = secure_filename(file.filename)
             filepath = session['csv_filepath'] = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            s3_bucket = session['s3-bucket'] = CSV_FLOW_BUCKET_NAME
+            s3_bucket = session['s3_bucket'] = CSV_FLOW_BUCKET_NAME
 
             app.logger.info('File path: {}'.format(filepath))
             file.save(os.path.join(filepath))
@@ -169,7 +169,8 @@ def api_call():
             csv_output=parsed_csv,
             segment_write_key=segment_write_key,
             user_id_header=user_id_header,
-            success=success
+            success=success,
+            csv_row_count=session.get('csv_row_count', None)
             )
 
 @app.route("/results/<job_key>", methods=['GET'])
