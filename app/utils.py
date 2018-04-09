@@ -2,7 +2,7 @@ from process_csv import parse_csv_into_dict
 from api import segment_api_call
 import os
 import csv
-from s3_access import read_s3_file, S3_UPLOAD_BUCKET_NAME
+from s3_access import read_s3_file
 import logging
 
 logging.basicConfig()
@@ -60,7 +60,7 @@ def shard_csv(filehandler, delimiter=',', row_limit=200000,
     return output_paths
 
 
-def redis_worker_wrapper(segment_write_key, user_id_header, parse_csv_func, shard_filename):
+def redis_worker_wrapper(segment_write_key, bucket_to_use, user_id_header, parse_csv_func, shard_filename):
     """
     This is the combination of functions we want to outsource to the worker.
 
@@ -75,7 +75,7 @@ def redis_worker_wrapper(segment_write_key, user_id_header, parse_csv_func, shar
         `shard_filename`: The filename for the shard.
     """
     logger.info("Reading s3 File...")
-    s3_file_contents = read_s3_file(S3_UPLOAD_BUCKET_NAME, shard_filename)
+    s3_file_contents = read_s3_file(bucket_to_use, shard_filename)
 
     logger.info("Parsing s3_file contents...")
     parsed_csv = parse_csv_func(s3_file_contents)

@@ -12,10 +12,10 @@ logger.setLevel(logging.INFO)
 aws_access_key_id = "AKIAIBNBGVBZLT7LLNPQ" # should be user input.
 aws_secret_access_key = "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" # should be user input.
 
-S3_BUCKET_NAME         = "foxroll-csv" # should be user input
-S3_UPLOAD_BUCKET_NAME  = "foxroll-csv-upload"
-S3_REGION              = "us-east-2"
-S3_STORAGE_PREFIX      = "https://s3.{region}.amazonaws.com/{bucket_name}/".format(region=S3_REGION, bucket_name=S3_BUCKET_NAME)
+S3_FLOW_BUCKET_NAME         = "foxroll-csv" # should be user input
+CSV_FLOW_BUCKET_NAME     = "foxroll-csv-upload"
+S3_REGION                   = "us-east-2"
+# S3_STORAGE_PREFIX      = "https://s3.{region}.amazonaws.com/{bucket_name}/".format(region=S3_REGION, bucket_name=S3_BUCKET_NAME)
 
 resource = boto3.resource('s3', region_name=S3_REGION) #high-level object-oriented API
 
@@ -40,11 +40,8 @@ def init_s3_client():
                         aws_secret_access_key=aws_secret_access_key,
                         region_name=S3_REGION, config=config)
 
-def read_s3_file(bucket_name, filename, compressed=False):
-    if compressed:
-        logger.info("Anticipating compressed file...")
-        filename = "{}.gz".format(filename)
 
+def download_s3_file(bucket_name, filename):
     logger.info("Checking S3 for file {} in bucket {}".format(filename, bucket_name))
     s3 = init_s3_client()
 
@@ -52,12 +49,19 @@ def read_s3_file(bucket_name, filename, compressed=False):
     filepath = 'app/download/{}'.format(filename)
     logger.info("Downloading file to {}...".format(filepath))
     s3.Bucket(bucket_name).download_file(filename, filepath)
+    return filepath
+
+def read_s3_file(bucket_name, filename, compressed=False):
+    filepath = download_s3_file(bucket_name, filename)
+    if compressed:
+        logger.info("Anticipating compressed file...")
+        filename = "{}.gz".format(filename)
 
     logger.info("reading file...")
     contents = read_gzip_file(filepath) if compressed else open(filepath, 'rb').readlines()
     return contents
 
-def upload_to_s3(filename, filepath, compressed=False):
+def upload_to_s3(filename, filepath, bucket, compressed=False):
     s3 = init_s3_client()
     logger.info('Initiating S3 upload for {}...'.format(filepath))
 
@@ -67,5 +71,5 @@ def upload_to_s3(filename, filepath, compressed=False):
         filename, filepath = convert_to_gzip(filename, filepath)
 
     data = open(filepath, 'rb')
-    s3.Bucket(S3_UPLOAD_BUCKET_NAME).put_object(Key=filename, Body=data.read())
-    logger.info("Uploaded file {} in S3 bucket {}".format(filename, S3_UPLOAD_BUCKET_NAME))
+    s3.Bucket(bucket).put_object(Key=filename, Body=data.read())
+    logger.info("Uploaded file {} in S3 bucket {}".format(filename, CSV_FLOW_BUCKET_NAME))
