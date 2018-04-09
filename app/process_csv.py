@@ -1,6 +1,14 @@
 import csv
 
 def parse_csv_into_dict(csv_string, limit=None):
+    """
+    Parse strings into a list of dictionaries, where the key is the header and
+    value is the corresponding value.
+
+    We'll automatically convert strings into integers.
+
+    [{'userId': 'foo-123', 'count_cool_cucumber': 4, first_order_date': '2017-05-30T20:37:46.000Z'},]
+    """
     reader = csv.DictReader(csv_string)
     parsed_output = []
     for line in reader:
@@ -8,6 +16,12 @@ def parse_csv_into_dict(csv_string, limit=None):
 
         if limit and len(parsed_output) > limit:
             return parsed_output
+
+        # This is a naive check (and mutation) to see if the string value can be
+        # safely converted to an integer.
+        for key, value in line.iteritems():
+            if value and value.isdigit():
+                line[key] = int(value)
 
     return parsed_output
 

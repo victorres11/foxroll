@@ -38,7 +38,7 @@ def segment_api_call(segment_write_key, user_id_header, csv_output):
     """Make segment api calls for each row of csv data."""
     logger.info("Instantiating new client with write_key: {}".format(segment_write_key))
     segment_client = analytics.Client(write_key=segment_write_key, debug=False,
-    on_error=on_error, send=True, max_queue_size=100000)
+        on_error=on_error, send=True, max_queue_size=100000)
 
     now_utc = datetime.datetime.now()
     now_pacific_tz = now_utc.replace(tzinfo=timezone("US/Pacific"))
@@ -50,11 +50,12 @@ def segment_api_call(segment_write_key, user_id_header, csv_output):
         logger.info("Initiating batch of api calls...")
         if num > 0 and num % 25 == 0:
             logger.info("This was just a test, so we stopped at 25 api calls (per shard)...")
+            segment_client.flush()
             return True
         if num > 0 and num % 25000 == 0:
             logger.info("Flush is being attempted. We're at num {}".format(num))
             logger.info("Fake flush")
-            # segment_client.flush()
+            segment_client.flush()
             logger.info("Instantiating a new client...")
             # segment_client = analytics.Client(write_key=segment_write_key,
             #     debug=False, on_error=on_error, send=True,
