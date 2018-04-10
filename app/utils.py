@@ -17,15 +17,13 @@ def shard_csv(filehandler, delimiter=',', row_limit=200000,
 
     A quick bastardization of the Python CSV library.
     Arguments:
-        `row_limit`: The number of rows you want in each output file. 10,000 by default.
+        `row_limit`: The number of rows you want in each output file.
         `output_name_template`: A %s-style template for the numbered output files.
         `output_path`: Where to stick the output files.
         `keep_headers`: Whether or not to print the headers in each output file.
     Example usage:
 
-        >> from toolbox import csv_splitter;
-        >> csv_splitter.split(open('/home/ben/input.csv', 'r'));
-
+        >> shard_csv.split(open('/home/ben/input.csv', 'r'));
     """
 
     reader = csv.reader(filehandler, delimiter=delimiter)
