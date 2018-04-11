@@ -18,10 +18,12 @@ def parse_csv_into_dict(csv_string, limit=None):
             return parsed_output
 
         # This is a naive check (and mutation) to see if the string value can be
-        # safely converted to an integer.
+        # safely converted to an integer or float.
         for key, value in line.iteritems():
             if value and value.isdigit():
                 line[key] = int(value)
+            elif value and is_float(value):
+                line[key] = float(value)
 
     return parsed_output
 
@@ -46,3 +48,16 @@ def count_rows(filepath):
         row_count = sum(1 for row in csv_file)
 
     return row_count
+
+def is_float(input_string):
+    """
+    Check if number should be converted into a float. Decimals *and* integers
+    will return true.
+
+    Returns a boolean.
+    """
+    try:
+        float(input_string)
+        return True
+    except ValueError:
+        return False
