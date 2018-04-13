@@ -19,6 +19,7 @@ def parse_csv_into_dict(csv_string, limit=None):
 
         # This is a naive check (and mutation) to see if the string value can be
         # safely converted to an integer or float.
+        rules = {}
         for key, value in line.iteritems():
             if value and value.isdigit():
                 line[key] = int(value)
@@ -40,6 +41,35 @@ def process_csv_file(filepath, limit=None):
                 return csv_output
 
         return csv_output
+
+def is_column_consistent(parsed_csv_dicts_in_list, data_type_by_header):
+    """
+    A test to see if the data is consistent throughout the whole data structure.
+    If anything is consistent, return False.
+
+    :param parsed_csv_dicts_in_list: list of dictionaries
+    :return: True or False
+    """
+    i = 0
+    for line in parsed_csv_dicts_in_list:
+        i += 1
+        print "Line number {}".format(i)
+        print "data_type_by_header = {}".format(data_type_by_header)
+        for header, value in line.iteritems():
+            if not data_type_by_header.get(header, None):
+                data_type_by_header[header] = type(value)
+                print "setting rules"
+            else:
+                is_data_consistent = (data_type_by_header[header] == type(value))
+                # print "data is consistent? {}".format(is_data_consistent)
+                if is_data_consistent == False:
+                    print "data type should be {}, but is actually{}".format(data_type_by_header[header],
+                                                                             type(value))
+                    print header, value
+                    print line
+                    return False
+
+    return True
 
 def count_rows(filepath):
     """Count number of rows present in a csvfile."""

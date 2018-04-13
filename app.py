@@ -1,7 +1,7 @@
 import os
 import analytics
 from flask import Flask, request, redirect, url_for, render_template, send_from_directory, session, flash
-from app.process_csv import parse_csv_into_dict, process_csv_file, count_rows
+from app.process_csv import parse_csv_into_dict, process_csv_file, count_rows, is_column_consistent
 from app.api import segment_api_call
 from app.s3_access import upload_to_s3, download_s3_file, S3_FLOW_BUCKET_NAME, CSV_FLOW_BUCKET_NAME
 from app.utils import redis_worker_wrapper, shard_csv
@@ -69,6 +69,8 @@ def foxroll_form():
 
             csv_row_count = session['csv_row_count'] = count_rows(filepath)
 
+            is_column_consistent = test_column_consistency(sharded_filepaths)
+
             return render_template("charts.html", form=form,
                    csv_output=parsed_csv,
                    is_checked=True,
@@ -76,7 +78,8 @@ def foxroll_form():
                    user_id_header=session.get('user_id_header', None),
                    s3_csv_file=session.get('s3_csv_file', None),
                    data_parsed_successfully=data_parsed_successfully,
-                   csv_row_count=csv_row_count or None
+                   csv_row_count=csv_row_count or None,
+                   is_column_consistent=is_column_consistent
                    )
 
         # Handle CSV Upload.
@@ -110,11 +113,17 @@ def foxroll_form():
                 del session['csv_output']
 
             app.logger.info('Processing new csv file...')
+            # TODO: Update this so it all uses the same function.
             processed_csv = process_csv_file(filepath, limit=50)
 
             data_parsed_successfully = False
             if processed_csv:
                 data_parsed_successfully = True
+
+            # Run tests on the files.
+            is_column_consistent = test_column_consistency(sharded_filepaths)
+
+            app.logger.info("Running consistency data test finished...")
 
             csv_row_count = session['csv_row_count'] = count_rows(filepath)
 
@@ -127,7 +136,9 @@ def foxroll_form():
                    segment_write_key=session.get('segment_write_key', None),
                    user_id_header=session.get('user_id_header', None),
                    data_parsed_successfully=data_parsed_successfully,
-                   csv_row_count=csv_row_count or None
+                   csv_row_count=csv_row_count or None,
+                   is_column_consistent=is_column_consistent,
+                   has_empty_column=False
                    )
 
     return render_template("charts.html", form=form,
@@ -139,6 +150,21 @@ def foxroll_form():
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
+def test_column_consistency(sharded_filepaths):
+    app.logger.info("Running consistency data test now...")
+    data_type_by_header = {}
+    for shard_filepath in sharded_filepaths:
+        app.logger.info("Checking shard {}".format(shard_filepath))
+        print sharded_filepaths
+        print "data_type_by_header in loop in app.py is: {}".format(data_type_by_header)
+        shard_contents = open(shard_filepath).readlines() # is it still available on harddisk?
+        parsed_csv = parse_csv_into_dict(shard_contents)
+        column_consistency = is_column_consistent(parsed_csv, data_type_by_header)
+        if not column_consistency:
+            app.logger.info("Detected a column with column inconsistency...")
+            return column_consistency
+    return column_consistency
 
 @app.route('/segment_api_call', methods=['GET', 'POST'])
 def api_call():

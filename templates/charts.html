@@ -215,16 +215,16 @@
           <div class="header">
             Test Type
           </div>
-          <div class="spec">
-            <span class="icon brankic-calendar2"></span>
+          <div class="spec" id="file_type">
+            <span class="icon brankic-pictures3"></span>
             File type
           </div>
-          <div class="spec">
+          <div class="spec" id="column_consistency">
             <span class="icon brankic-loop"></span>
             Data Type Consistency
           </div>
-          <div class="spec">
-            <span class="icon brankic-loop"></span>
+          <div class="spec" id="empty_column">
+            <span class="icon brankic-key"></span>
             Empty Columns
           </div>
 
@@ -237,14 +237,22 @@
               Result
             </div>
           </div>
-          <div class="spec">
+          <div class="spec" id="file_type">
             <img src="{{ url_for('static', filename='images/checkmark.png') }}" class="check" alt="checkmark" />
           </div>
-          <div class="spec">
-            <img src="{{ url_for('static', filename='images/checkmark.png') }}" class="check" alt="checkmark" />
+          <div class="spec" id="column_consistency">
+              {% if is_column_consistent %}
+                <img src="{{ url_for('static', filename='images/checkmark.png') }}" class="check" alt="checkmark" />
+              {% else %}
+                  <img src="{{ url_for('static', filename='images/icon_important.png') }}" class="check" alt="alert" />
+              {% endif %}
           </div>
-          <div class="spec">
-            <img src="{{ url_for('static', filename='images/checkmark.png') }}" class="check" alt="checkmark" />
+          <div class="spec" id="empty_column">
+              {% if not has_empty_column %}
+                <img src="{{ url_for('static', filename='images/checkmark.png') }}" class="check" alt="checkmark" />
+              {% else %}
+                  <img src="{{ url_for('static', filename='images/icon_important.png') }}" class="check" alt="alert" />
+              {% endif %}
           </div>
         </div>
       </div>
