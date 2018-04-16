@@ -11,6 +11,8 @@ logger.setLevel(logging.INFO)
 FOXROLL_SEGMENT_WRITE_KEY = "TRHR0eTFmnb6cdNcQD2GeTW6ds5k6MMO"
 FOXROLL_EVENT_NAME = 'FoxRoll Updated User'
 
+FLUSH_THRESHOLD = 10000
+
 from rq import Queue
 from rq.job import Job
 
@@ -52,7 +54,7 @@ def segment_api_call(segment_write_key, user_id_header, csv_output):
         #     logger.info("This was just a test, so we stopped at 25 api calls (per shard)...")
         #     segment_client.flush()
         #     return True
-        if num > 0 and num % 25000 == 0:
+        if num > 0 and num % FLUSH_THRESHOLD == 0:
             logger.info("Flush is being attempted. We're at num {}".format(num))
             segment_client.flush()
             logger.info("Instantiating a new client...")

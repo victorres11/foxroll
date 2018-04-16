@@ -17,6 +17,7 @@ from rq.job import Job
 UPLOAD_FOLDER = 'app/upload/'
 ALLOWED_EXTENSIONS = set(['csv'])
 NEEDED_FORM_NAMES_FOR_S3 = ['aws_access_key_id', 'aws_access_secret_key_id', 'bucket_name', 'aws_region']
+SHARD_THRESHOLD = 50000
 
 app = Flask(__name__, static_folder="static")
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -49,7 +50,7 @@ def foxroll_form():
             app.logger.info("Download and shard the file...")
             filepath = download_s3_file(s3_bucket, s3_csv_filename)
             shard_filename_template = "{}_shard_%s.csv".format(s3_csv_filename)
-            sharded_filepaths = shard_csv(open(filepath), row_limit=100000,
+            sharded_filepaths = shard_csv(open(filepath), row_limit=SHARD_THRESHOLD,
                 output_name_template=shard_filename_template, output_path='./app/download',
                 keep_headers=True)
 
@@ -102,7 +103,7 @@ def foxroll_form():
             file.save(os.path.join(filepath))
             app.logger.info('File saved to server...')
 
-            sharded_filepaths = shard_csv(open(filepath), row_limit=100000,
+            sharded_filepaths = shard_csv(open(filepath), row_limit=SHARD_THRESHOLD,
                 output_name_template='shard_%s.csv', output_path='./app/download',
                 keep_headers=True)
             session['sharded_filepaths'] = sharded_filepaths
