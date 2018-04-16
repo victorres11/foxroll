@@ -48,18 +48,17 @@ def segment_api_call(segment_write_key, user_id_header, csv_output):
         identify_api_call(segment_client, user_id_header, row_data)
         event_api_call(segment_client, row_data[user_id_header], now_pacific_tz)
         logger.info("Initiating batch of api calls...")
-        if num > 0 and num % 25 == 0:
-            logger.info("This was just a test, so we stopped at 25 api calls (per shard)...")
-            segment_client.flush()
-            return True
+        # if num > 0 and num % 25 == 0:
+        #     logger.info("This was just a test, so we stopped at 25 api calls (per shard)...")
+        #     segment_client.flush()
+        #     return True
         if num > 0 and num % 25000 == 0:
             logger.info("Flush is being attempted. We're at num {}".format(num))
-            logger.info("Fake flush")
             segment_client.flush()
             logger.info("Instantiating a new client...")
-            # segment_client = analytics.Client(write_key=segment_write_key,
-            #     debug=False, on_error=on_error, send=True,
-            #     max_queue_size=100000)
+            segment_client = analytics.Client(write_key=segment_write_key,
+                debug=False, on_error=on_error, send=True,
+                max_queue_size=100000)
 
 
     logger.info("Final flush is being attempted...")
