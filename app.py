@@ -69,7 +69,8 @@ def foxroll_form():
 
             csv_row_count = session['csv_row_count'] = count_rows(filepath)
 
-            is_column_consistent = test_column_consistency(sharded_filepaths)
+            # is_column_consistent = test_column_consistency(sharded_filepaths)
+            is_column_consistent = True
 
             return render_template("charts.html", form=form,
                    csv_output=parsed_csv,
@@ -121,7 +122,8 @@ def foxroll_form():
                 data_parsed_successfully = True
 
             # Run tests on the files.
-            is_column_consistent = test_column_consistency(sharded_filepaths)
+            is_column_consistent = True
+            # is_column_consistent = test_column_consistency(sharded_filepaths)
 
             app.logger.info("Running consistency data test finished...")
 
