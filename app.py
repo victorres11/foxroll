@@ -126,7 +126,7 @@ def foxroll_form():
             is_column_consistent = True
             # is_column_consistent = test_column_consistency(sharded_filepaths)
 
-            app.logger.info("Running consistency data test finished...")
+            # app.logger.info("Running consistency data test finished...")
 
             csv_row_count = session['csv_row_count'] = count_rows(filepath)
 

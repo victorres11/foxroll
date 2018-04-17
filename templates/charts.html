@@ -43,7 +43,7 @@
   </div>
 {% if success %}
   <div class="alert alert-success" role="alert" id="success-alert">
-    <strong>Well done!</strong> Sending data to segment was successful.
+    <strong>Well done!</strong> Sending data to segment was initiated successfully and is now working in the background.
   </div>
 {% endif %}
 
@@ -135,9 +135,9 @@
           {% endif %}
           >{{header}}</option>
         {% endfor %}
-        <!-- removing this hidden checkbox breaks the html below it, not sure why. -->
+        <!-- TODO FIX: removing this hidden checkbox breaks the html below it, not sure why. -->
        <input type="hidden" id="s3_bucket_checked" name="s3_bucket_checked" required value={{ is_checked }} >
-      <small id="emailHelp" class="form-text text-muted">Select from the options available.</small>
+      <small id="emailHelp" class="form-text text-muted">Whatever header you select is required to have a value present for all rows.</small>
     </div>
   </div>
 

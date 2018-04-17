@@ -49,7 +49,6 @@ def segment_api_call(segment_write_key, user_id_header, csv_output):
     for num, row_data in enumerate(csv_output):
         identify_api_call(segment_client, user_id_header, row_data)
         event_api_call(segment_client, row_data[user_id_header], now_pacific_tz)
-        logger.info("Initiating batch of api calls...")
         # if num > 0 and num % 25 == 0:
         #     logger.info("This was just a test, so we stopped at 25 api calls (per shard)...")
         #     segment_client.flush()
