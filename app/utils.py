@@ -80,3 +80,5 @@ def redis_worker_wrapper(segment_write_key, bucket_to_use, user_id_header, parse
 
     logger.info("Calling segment api with parsed csv contents...")
     segment_api_call(segment_write_key, user_id_header, parsed_csv)
+
+    return parsed_csv
