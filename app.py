@@ -184,10 +184,11 @@ def api_call():
     for shard_path in sharded_filepaths:
         # will need to retrieve from s3
         shard_name = shard_path.split('/')[-1]
+        is_final_run = shard_path == sharded_filepaths[-1]
         app.logger.info('Sending {} to Redis queue...'.format(shard_name))
         success = q.enqueue_call(
                 func=redis_worker_wrapper,
-                args=(segment_write_key, s3_bucket, user_id_header, parse_csv_into_dict, shard_name,),
+                args=(segment_write_key, s3_bucket, user_id_header, parse_csv_into_dict, shard_name, is_final_run),
                 result_ttl=5000,
                 timeout=2000
             )

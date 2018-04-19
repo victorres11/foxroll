@@ -4,6 +4,7 @@ import os
 import csv
 from s3_access import read_s3_file
 import logging
+import requests
 
 logging.basicConfig()
 logger = logging.getLogger(__name__)
@@ -58,7 +59,7 @@ def shard_csv(filehandler, delimiter=',', row_limit=200000,
     return output_paths
 
 
-def redis_worker_wrapper(segment_write_key, bucket_to_use, user_id_header, parse_csv_func, shard_filename):
+def redis_worker_wrapper(segment_write_key, bucket_to_use, user_id_header, parse_csv_func, shard_filename, final_run):
     """
     This is the combination of functions we want to outsource to the worker.
 
@@ -71,6 +72,7 @@ def redis_worker_wrapper(segment_write_key, bucket_to_use, user_id_header, parse
         `user_id_header`: The headers for the csv document.
         `parse_csv_func`: The type of parsing function we will use, outputs a dict.
         `shard_filename`: The filename for the shard.
+        `final_run`: Whether this is the last shard task to be run, to notify by e-mail of completion.
     """
     logger.info("Reading s3 File...")
     s3_file_contents = read_s3_file(bucket_to_use, shard_filename)
@@ -81,4 +83,18 @@ def redis_worker_wrapper(segment_write_key, bucket_to_use, user_id_header, parse
     logger.info("Calling segment api with parsed csv contents...")
     segment_api_call(segment_write_key, user_id_header, parsed_csv)
 
+    if final_run:
+        email_addresses = ["victorres11@gmail.com"]
+        logger.info("Sending completion e-mail to {}".format(email_addresses))
+        send_simple_message(email_addresses)
+
     return parsed_csv
+
+def send_simple_message(email_addresses):
+    return requests.post(
+        "https://api.mailgun.net/v3/sandbox3bc5eb3dd019411dbcb2e819e50754cc.mailgun.org/messages",
+        auth=("api", "key-b72a22818bccaf942789369264bf856c"),
+        data={"from": "FoxRoll <postmaster@sandbox3bc5eb3dd019411dbcb2e819e50754cc.mailgun.org>",
+              "to": email_addresses,
+              "subject": "FoxRoll ETL Completed",
+              "text": "Just wanted to let you know your foxroll request has completed!"})
