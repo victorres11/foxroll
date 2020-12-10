@@ -1,5 +1,5 @@
-# foxgrowth
-foxgrowth
+# foxroll
+https://foxroll.herokuapp.com/
 
 ## Re-sizing dynos on heroku
 This will resize both the web and worker server's
