@@ -33,7 +33,7 @@ pyasn1==0.4.2
 Pygments==2.2.0
 python-dateutil==2.6.1
 pytz==2018.3
-PyYAML==3.12
+PyYAML==5.4
 redis==2.10.6
 requests==2.18.4
 rq==0.10.0
